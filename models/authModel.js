@@ -6,14 +6,15 @@ module.exports = {
     const userData = await db.query(query);
     return userData[0];
   },
-  addUser: async (newUserData) => {
+  addUser: async (newUserData, randPassword) => {
     const query = 'INSERT INTO User(level, name, phone, password, email, deposit) VALUES(?, ?, ?, ?, ?, ?);';
+
     try {
       await db.query(query, [
         newUserData.level,
         newUserData.name,
         newUserData.phone,
-        'programmingpassword',
+        randPassword,
         newUserData.email,
         120000
       ]);
