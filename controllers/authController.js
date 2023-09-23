@@ -4,9 +4,10 @@ const createHTML = require('../nodemailer/createHTML.js');
 
 module.exports = {
   login: async (req, res) => {
-    const data = await authModel.login();
+    const loginData = req.body;
+    const data = await authModel.login(loginData);
 
-    res.send(data);
+    res.json({data: data});
   },
   addUser: async (req, res) => {
     const newUserData = req.body;
