@@ -18,10 +18,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
 app.use(bodyParser.json());
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-
 const authRouter = require('./routers/authRouter.js');
 app.use('/api/auth', authRouter);
 
