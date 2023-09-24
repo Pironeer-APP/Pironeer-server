@@ -21,6 +21,10 @@ app.use(bodyParser.json());
 const authRouter = require('./routers/authRouter.js');
 app.use('/api/auth', authRouter);
 
+// 과제 페이지
+const assignRouter = require('./routers/assignRouter.js');
+app.use('/api/assign', assignRouter);
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
