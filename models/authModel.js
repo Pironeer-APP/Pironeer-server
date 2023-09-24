@@ -2,11 +2,18 @@ const db = require('../config/db.js');
 
 module.exports = {
   login: async (loginData) => {
-    const query = 'SELECT * FROM User WHERE phone=?;';
+    const query = `
+    SELECT
+      level, is_admin, password,
+      name, email, phone, deposit, created_at
+    FROM User
+    WHERE phone=?;`; //async storage에 저장될 예정이므로 필요한 정보만 가져오기
     const userData = await db.query(query, [loginData.phone]);
     const userInfo = userData[0][0];
+    console.log(userInfo);
     try {
       if(userInfo.password === loginData.password) return userInfo;
+      else return false;
     } catch(error) {
       return false;
     }
