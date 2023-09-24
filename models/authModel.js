@@ -3,9 +3,7 @@ const db = require('../config/db.js');
 module.exports = {
   login: async (loginData) => {
     const query = `
-    SELECT
-      level, is_admin, password,
-      name, email, phone, deposit, created_at
+    SELECT level, is_admin, name, email, phone, deposit, created_at
     FROM User
     WHERE phone=?;`; //async storage에 저장될 예정이므로 필요한 정보만 가져오기
     const userData = await db.query(query, [loginData.phone]);
