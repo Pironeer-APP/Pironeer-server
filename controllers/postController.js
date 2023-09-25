@@ -2,14 +2,13 @@ const postModel = require('../models/postModel');
 
 module.exports = {
     getPosts: async(req, res) => {
-        const level = req.query.level;
-        const category = req.query.category;
-
+        const level = req.params.level;
+        console.log(level);
         if (!level) {
             return res.status(400).json({message: "url에 level 필요함"})
         }
 
-        const posts = await postModel.getPosts(level, category);
+        const posts = await postModel.getPosts(level);
         return res.status(200).json({posts: posts});
     },
     getPostById: async(req, res) => {
