@@ -5,8 +5,8 @@ module.exports = {
         const level = req.query.level;
         const category = req.query.category;
 
-        if (!level || !category) {
-            return res.status(400).json({message: "level이랑 category 필요함"})
+        if (!level) {
+            return res.status(400).json({message: "level 필요함"})
         }
 
         const posts = await postModel.getPosts(level, category);
