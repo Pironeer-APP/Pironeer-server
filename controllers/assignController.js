@@ -2,13 +2,12 @@ const assignModel = require('../models/assignModel.js');
 
 module.exports = {
     showAssign: async (req, res) => {
-        const curUserData = req.body;
-        const curUserId = curUserData.id; // or phone?
-        const curUserLevel = curUserData.level;
+        const curUserLevel = Number(req.params.level); // level get
+        const curUserId = null; // id
 
-        const gradeData = await assignModel.showGrade(curUserId);
         const assignData = await assignModel.showAssign(curUserLevel);
+        const gradeData = await assignModel.showGrade(curUserId);
 
-        // res.json({gradeData: gradeData, assignData: assignData});
+        res.json({gradeData: gradeData, assignData: assignData});
     },
 }

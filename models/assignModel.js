@@ -5,11 +5,11 @@ module.exports = {
         const query = `
         SELECT
           grade
-        FROM Grade
+        FROM Assign
         WHERE user_id=?;`;
         const userGradeData = await db.query(query, curUserId);
         const userGrade = userGradeData[0];
-        console.log(userGrade);
+        return userGrade;
     },
     showAssign: async (curUserLevel) => {
         const query = `
@@ -17,8 +17,8 @@ module.exports = {
           title, due_date, created_at
         FROM Post
         WHERE level=? AND category=?;`;
-        const thisLevelAssignData = await db.query(query, curUserLevel, 2); // 회원의 기수, 과제 카테고리 필터링
+        const thisLevelAssignData = await db.query(query, [curUserLevel, 2]); // 회원의 기수, 과제 카테고리 필터링
         const thisLevelAssign = thisLevelAssignData[0];
-        console.log(thisLevelAssign);
+        return thisLevelAssign;
     }
 }
