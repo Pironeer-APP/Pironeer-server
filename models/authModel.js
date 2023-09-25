@@ -3,7 +3,7 @@ const db = require('../config/db.js');
 module.exports = {
   login: async (loginData) => {
     const query = `
-    SELECT level, is_admin, password, name, email, phone, deposit, created_at
+    SELECT user_id, level, is_admin, password, name, email, phone, deposit, created_at
     FROM User
     WHERE phone=?;`;
     const userData = await db.query(query, [loginData.phone]);
@@ -12,6 +12,7 @@ module.exports = {
     try {
       if(userInfo.password === loginData.password) {
         return {
+          user_id: userInfo.user_id,
           level: userInfo.level,
           is_admin: userInfo.is_admin,
           name: userInfo.name,
