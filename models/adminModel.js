@@ -33,11 +33,11 @@ module.exports = {
     FROM (
       SELECT type, created_at, DATE_FORMAT(created_at, '%m-%d') AS monthDay
       FROM Attend
-      WHERE user_id=41
+      WHERE user_id=?
       UNION
       SELECT grade AS type, created_at, DATE_FORMAT(created_at, '%m-%d') AS monthDay
       FROM Assign
-      WHERE user_id=41
+      WHERE user_id=?
       ORDER BY created_at
     ) AS B, (SELECT @SEQ := 0) A;`;
     const historyList = await db.query(attendAndAssignQuery, [userInfo.user_id, userInfo.user_id]);
