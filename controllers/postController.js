@@ -10,7 +10,6 @@ module.exports = {
         }
 
         const posts = await postModel.getPosts(level, category);
-        console.log(posts)
         return res.status(200).json({posts: posts})
     }
 }

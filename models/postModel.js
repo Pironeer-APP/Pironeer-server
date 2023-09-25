@@ -3,14 +3,15 @@ const db = require('../config/db.js');
 module.exports = {
     //0  === 전체, 1 === 세션, 2 === 과제, 3 === 기타  
     getPosts: async (level, category) => {
-        if (category === 0) {
+        let posts;
+        //category가 문자열로 들어온다니;; 
+        if (category === '0') {
             const query = 'SELECT * FROM Post WHERE level=?;';
-            const [posts] = await db.query(query, [level]);
+            [posts] = await db.query(query, [level]);
         } else {
             const query = 'SELECT * FROM Post WHERE level=? AND category=?;';
-            const [posts] = await db.query(query, [level, category]);
-        }
-        console.log(posts);
+            [posts] = await db.query(query, [level, category]);
+        };
         return posts;
     },
 }
