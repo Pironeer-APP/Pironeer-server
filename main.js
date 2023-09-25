@@ -21,6 +21,9 @@ app.use(bodyParser.json());
 const authRouter = require('./routers/authRouter.js');
 app.use('/api/auth', authRouter);
 
+const depositRouter = require('./routers/depositRouter.js');
+app.use('/deposit', depositRouter);
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
