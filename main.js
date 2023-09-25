@@ -19,7 +19,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 const authRouter = require('./routers/authRouter.js');
+const adminRouter = require('./routers/adminRouter.js');
 app.use('/api/auth', authRouter);
+app.use('/api/admin', adminRouter);
 
 // 과제 페이지
 const assignRouter = require('./routers/assignRouter.js');
