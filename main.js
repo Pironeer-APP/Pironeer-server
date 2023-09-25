@@ -21,12 +21,10 @@ app.use(bodyParser.json());
 const authRouter = require('./routers/authRouter.js');
 const adminRouter = require('./routers/adminRouter.js');
 const postRouter = require('./routers/postRouter.js');
+const assignRouter = require('./routers/assignRouter.js');
 app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/post', postRouter);
-
-// 과제 페이지
-const assignRouter = require('./routers/assignRouter.js');
 app.use('/api/assign', assignRouter);
 
 app.listen(port, () => {
