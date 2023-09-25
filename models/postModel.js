@@ -14,13 +14,15 @@ module.exports = {
 
         return post[0];
     },
+    createPost: async (level, data) => {
+        const {title, content, category, due_date} = data;
+        const query = 'INSERT INTO Post (level, title, content, category, due_date) VALUE (?, ?, ?, ?, ?);';
+        const [newPost] = await db.query(query, [level, title, content, category, due_date]);
+        
+        return newPost.insertId;
+    },
 
 }
- 
-const getPostById = async (id) => {
-    const [rows] = await db.query('SELECT * FROM Post WHERE post_id = ?', [id]);
-    return rows[0];
-};
 
 const createPost = async (data) => {
     const { level, title, content, category, due_date } = data;

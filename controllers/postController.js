@@ -3,7 +3,7 @@ const postModel = require('../models/postModel');
 module.exports = {
     getPosts: async(req, res) => {
         const level = req.params.level;
-        console.log(level);
+        
         if (!level) {
             return res.status(400).json({message: "url에 level 필요함"})
         }
@@ -21,4 +21,17 @@ module.exports = {
         const post = await postModel.getPostById(id);
         return res.status(200).json({post:post});
     },
+    createPost: async(req, res) => {
+        const level = req.params.level; 
+        const postData = req.body;
+        const newPostId = await postModel.createPost(level, postData);
+        
+        if (newPostId) {
+            res.status(201).json({message: '새로운 post 생성 성공', newPostId: newPostId});
+            console.log('새로운 post 생성 성공');
+        } else {
+            res.status(400).json({message: '새로운 post 생성 실패'});
+            console.log('새로운 post 생성 실패');
+        };
+    }
 }
