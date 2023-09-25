@@ -8,8 +8,15 @@ module.exports = {
 
         return posts;
     },
-}
+    getPostById: async (id) => {
+        const query = 'SELECT * FROM Post WHERE post_id=?;';
+        const [post] = await db.query(query, [id]);  
 
+        return post[0];
+    },
+
+}
+ 
 const getPostById = async (id) => {
     const [rows] = await db.query('SELECT * FROM Post WHERE post_id = ?', [id]);
     return rows[0];
