@@ -19,7 +19,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 const authRouter = require('./routers/authRouter.js');
+const adminRouter = require('./routers/adminRouter.js');
 app.use('/api/auth', authRouter);
+app.use('/api/admin', adminRouter);
 
 const depositRouter = require('./routers/depositRouter.js');
 app.use('/deposit', depositRouter);
