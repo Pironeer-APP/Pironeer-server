@@ -50,5 +50,17 @@ module.exports = {
             res.stauts(400).json({message: 'post 업데이트 실패'});
             console.log('post 업데이트 실패, 위치: postController');
         };
-    }
+    },
+    deletePost: async(req, res) => {
+        const id = req.params.post_id;
+        const deletedRows = await postModel.deletePost(id);
+
+        if (deletedRows == 1) {
+            console.log(`Post테이블 post_id:${id} 삭제 성공.`);
+            res.status(200).json({ message: 'Post deleted successfully.' });
+        } else {
+            console.log(`Post with ID ${id} 여러개의 행 삭제됐거나 해당 행 발견되지 않음.`);
+            res.status(404).json({ message: 'Post 없거나 하나 이상의 행 삭제됨.' });
+        };
+    },
 }
