@@ -4,5 +4,6 @@ const postController = require('../controllers/postController.js');
 
 router.get('/:level/all', postController.getPosts);
 router.get('/:level/:post_id', postController.getPostById);
-router.post('/:level/create', postController.createPost);
+router.post('/create/:level', postController.createPost);
+router.post('/update/:post_id', postController.updatePost);
 module.exports = router;

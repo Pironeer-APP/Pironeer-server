@@ -17,18 +17,20 @@ module.exports = {
     createPost: async (level, data) => {
         const {title, content, category, due_date} = data;
         const query = 'INSERT INTO Post (level, title, content, category, due_date) VALUE (?, ?, ?, ?, ?);';
-        const [newPost] = await db.query(query, [level, title, content, category, due_date]);
+        const [createResult] = await db.query(query, [level, title, content, category, due_date]);
         
-        return newPost.insertId;
+        return createResult.insertId;
     },
+    updatePost: async (id, data) => {
+        const {title, content, category, due_date} = data;
+        const query = 'UPDATE Post SET title=?, conetent=?, category=?, due_date=? WHERE post_id=?;';
+        const [updateResult] = await db.query(query, [title, content, category, due_date, id]);
+
+        return updateResult.insertId;
+    }
 
 }
 
-const createPost = async (data) => {
-    const { level, title, content, category, due_date } = data;
-    const [result] = await db.query('INSERT INTO Post (level, title, content, category, due_date) VALUES (?, ?, ?, ?, ?)', [level, title, content, category, due_date]);
-    return result.insertId;
-};
 
 const updatePost = async (id, data) => {
     const { level, title, content, category, due_date } = data;
