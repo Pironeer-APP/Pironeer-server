@@ -11,5 +11,14 @@ module.exports = {
     const userInfoList = await db.query(query, [level + 1]);
 
     return userInfoList[0];
-  }
+  },
+  addCouponToUser: async (couponData) => {
+    const query =`
+    INSERT INTO Coupon(user_id, type, money)
+    VALUES(?, ?, ?);`; //is_used는 default 0임
+
+    const result = await db.query(query, [couponData.user_id, couponData.type, couponData.money]);
+    
+    return result[0];
+  },
 }

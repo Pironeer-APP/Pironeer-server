@@ -8,18 +8,29 @@ module.exports = {
 
         return posts;
     },
+    getPostById: async (id) => {
+        const query = 'SELECT * FROM Post WHERE post_id=?;';
+        const [post] = await db.query(query, [id]);  
+
+        return post[0];
+    },
+    createPost: async (level, data) => {
+        const {title, content, category, due_date} = data;
+        const query = 'INSERT INTO Post (level, title, content, category, due_date) VALUE (?, ?, ?, ?, ?);';
+        const [createResult] = await db.query(query, [level, title, content, category, due_date]);
+        
+        return createResult.insertId;
+    },
+    updatePost: async (id, data) => {
+        const {title, content, category, due_date} = data;
+        const query = 'UPDATE Post SET title=?, conetent=?, category=?, due_date=? WHERE post_id=?;';
+        const [updateResult] = await db.query(query, [title, content, category, due_date, id]);
+
+        return updateResult.insertId;
+    }
+
 }
 
-const getPostById = async (id) => {
-    const [rows] = await db.query('SELECT * FROM Post WHERE post_id = ?', [id]);
-    return rows[0];
-};
-
-const createPost = async (data) => {
-    const { level, title, content, category, due_date } = data;
-    const [result] = await db.query('INSERT INTO Post (level, title, content, category, due_date) VALUES (?, ?, ?, ?, ?)', [level, title, content, category, due_date]);
-    return result.insertId;
-};
 
 const updatePost = async (id, data) => {
     const { level, title, content, category, due_date } = data;
