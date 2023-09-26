@@ -3,7 +3,7 @@ const db = require('../config/db.js');
 module.exports = {
     //0  === 전체, 1 === 세션, 2 === 과제, 3 === 기타  
     getPosts: async (level) => {
-        const query = 'SELECT * FROM Post WHERE level=?;';
+        const query = 'SELECT * FROM Post WHERE level=? ORDER BY post_id DESC;';
         const [posts] = await db.query(query, [level]);
 
         return posts;
