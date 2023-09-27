@@ -25,6 +25,8 @@ const depositRouter = require('./routers/depositRouter.js');
 const userRouter = require('./routers/userRouter.js');
 const sessionRouter = require('./routers/sessionRouter.js');
 const assignRouter = require('./routers/assignRouter.js');
+const codeRouter = require('./routers/codeRouter.js');
+
 app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/post', postRouter);
@@ -32,6 +34,7 @@ app.use('/api/deposit', depositRouter);
 app.use('/api/user', userRouter);
 app.use('/api/session', sessionRouter);
 app.use('/api/assign', assignRouter);
+app.use('/api/code', codeRouter);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
