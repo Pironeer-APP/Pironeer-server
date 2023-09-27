@@ -103,4 +103,14 @@ module.exports = {
       return false;
     }
   },
+  unregister: async (userInfo) => {
+    const query = `DELETE FROM User WHERE user_id=?;`;
+    
+    try {
+      const result = await db.query(query, [userInfo.user_id]);
+      return result[0];
+    } catch {
+      return false;
+    }
+  }
 }

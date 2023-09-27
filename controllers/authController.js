@@ -76,4 +76,10 @@ module.exports = {
 
     res.json({updatedUserInfo: updatedUserInfo});
   },
+  unregister: async (req, res) => {
+    const userInfo = req.body;
+    const result = await authModel.unregister(userInfo);
+
+    res.json({result: result});
+  }
 }
