@@ -1,6 +1,7 @@
 const nodemailer = require("nodemailer");
 const authModel = require('../models/authModel.js');
 const createHTML = require('../nodemailer/createHTML.js');
+const userModel = require("../models/userModel.js");
 
 module.exports = {
   login: async (req, res) => {
@@ -48,5 +49,31 @@ module.exports = {
     } catch {
       res.json(null);
     }
-  }
+  },
+  compareInfo: async (req, res) => {
+    const type = req.params.type;
+    const data = req.body;
+    console.log(type, data);
+    const result = await authModel.compareInfo(data, type);
+    console.log(result);
+
+    res.json({result: result});
+  },
+  updateInfo: async (req, res) => {
+    const type = req.params.type;
+    const data = req.body;
+    console.log(data);
+    if(type === 'phone') {
+      const result = await authModel.updatePhone(data);
+    } else if(type === 'password') {
+      const result = await authModel.updatePassword(data);
+    } else if(type === 'email') {
+      const result = await authModel.updateEmail(data);
+    }
+
+    const updatedUserInfo = await userModel.getOneUserInfo(data);
+    console.log(updatedUserInfo);
+
+    res.json({updatedUserInfo: updatedUserInfo});
+  },
 }
