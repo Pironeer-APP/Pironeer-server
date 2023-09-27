@@ -11,6 +11,6 @@ module.exports = {
   },
   removeCode: async (req, res) => {
     const result = await codeModel.removeCode();
-    res.json({result: result});
+    res.json({result: result}) ;
   },
 }
