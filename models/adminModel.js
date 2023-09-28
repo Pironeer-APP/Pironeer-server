@@ -15,10 +15,20 @@ module.exports = {
   addCouponToUser: async (couponData) => {
     const query =`
     INSERT INTO Coupon(user_id, type, money)
-    VALUES(?, ?, ?);`; //is_used는 default 0임
+    VALUES(?, "보증금 방어권", 10000);`; //is_used는 default 0임
 
-    const result = await db.query(query, [couponData.user_id, couponData.type, couponData.money]);
+    const result = await db.query(query, [couponData.user_id]);
     
     return result[0];
   },
+  deleteCoupon: async (coupon_id) => {
+    const query = 'DELETE FROM Coupon WHERE coupon_id=?;';
+    try {
+      await db.query(query, [coupon_id]);
+      return true;
+    } catch(error) {
+      console.log(error);
+      return false;
+    }
+  }
 }
