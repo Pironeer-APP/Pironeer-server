@@ -26,6 +26,7 @@ const userRouter = require('./routers/userRouter.js');
 const sessionRouter = require('./routers/sessionRouter.js');
 const assignRouter = require('./routers/assignRouter.js');
 const codeRouter = require('./routers/codeRouter.js');
+const attendRouter = require('./routers/attendRouter.js');
 
 app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
@@ -35,6 +36,7 @@ app.use('/api/user', userRouter);
 app.use('/api/session', sessionRouter);
 app.use('/api/assign', assignRouter);
 app.use('/api/code', codeRouter);
+app.use('/api/code', attendRouter);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

@@ -1,4 +1,4 @@
-module.exports = (newUserData, randPassword) => {
+module.exports = (name, phone, randPassword) => {
   return (`
   <!DOCTYPE html>
   <html lang="en">
@@ -12,12 +12,12 @@ module.exports = (newUserData, randPassword) => {
   <body>
     <div style="margin: 2rem;">
       <img src="cid:unique@nodemailer.com" style="width: 40px; height: 40px;" />
-      <h2 style="height: 40px;">${newUserData.name}님, 환영합니다!</h2>
+      <h2 style="height: 40px;">${name}님, 환영합니다!</h2>
       <h2 style="height: 40px;">피로그래밍 계정 정보를 안내해 드려요</h2>
       <table>
         <tr>
           <td>아이디(전화번호)</td>
-          <td>${newUserData.phone}</td>
+          <td>${phone}</td>
         </tr>
         <tr>
           <td>비밀번호</td>
