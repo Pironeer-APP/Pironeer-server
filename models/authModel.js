@@ -6,25 +6,15 @@ const salt = 10;
 module.exports = {
   login: async (loginData) => {
     const query = `
-    SELECT user_id, level, is_admin, password, name, email, phone, deposit, created_at
+    SELECT *
     FROM User
     WHERE phone=?;`;
     const userData = await db.query(query, [loginData.phone]);
     const userInfo = userData[0][0];
-    console.log(userInfo);
     try {
       const match = await bcrypt.compare(loginData.password, userInfo.password);
       if(match) {
-        return {
-          user_id: userInfo.user_id,
-          level: userInfo.level,
-          is_admin: userInfo.is_admin,
-          name: userInfo.name,
-          email: userInfo.email,
-          phone: userInfo.phone,
-          deposit: userInfo.deposit,
-          created_at: userInfo.created_at
-        }; //async storage에 저장될 예정이므로 필요한 정보만 가져오기
+        return userInfo;
       } else {
         return false;
       }
@@ -51,53 +41,52 @@ module.exports = {
       return false;
     }
   },
-  compareInfo: async (data, type) => {
-    const userInfo = await userModel.getUserFullInfo(data);
+  compareInfo: async (data, type, requestUserInfo) => {
     if(type === 'phone') {
-      return userInfo.phone === data.type;
+      return requestUserInfo.phone === data;
     } else if(type === 'email') {
-      return userInfo.email === data.type;
+      return requestUserInfo.email === data;
     } else if(type === 'password') {
-      const match = await bcrypt.compare(data.type, userInfo.password);
+      const match = await bcrypt.compare(data, requestUserInfo.password);
       return match;
     }
   },
-  updatePhone: async (data) => {
+  updatePhone: async (data, user_id) => {
     const query = `
     UPDATE User
     SET phone=?
     WHERE user_id=?;`;
 
     try {
-      const result = await db.query(query, [data.type, data.user_id]);
+      const result = await db.query(query, [data, user_id]);
       return result[0];
     } catch {
       return false;
     }
   },
-  updatePassword: async (data) => {
+  updatePassword: async (data, user_id) => {
     const query = `
     UPDATE User
     SET password=?
     WHERE user_id=?;`;
 
     try {
-      const hash = await bcrypt.hash(data.type, salt);
-      const result = await db.query(query, [hash, data.user_id]);
+      const hash = await bcrypt.hash(data, salt);
+      const result = await db.query(query, [hash, user_id]);
       return result[0];
     } catch(error) {
       console.log(error);
       return false;
     }
   },
-  updateEmail: async (data) => {
+  updateEmail: async (data, user_id) => {
     const query = `
     UPDATE User
     SET email=?
     WHERE user_id=?;`;
 
     try {
-      const result = await db.query(query, [data.type, data.user_id]);
+      const result = await db.query(query, [data, user_id]);
       return result[0];
     } catch {
       return false;
