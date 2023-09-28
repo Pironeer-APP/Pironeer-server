@@ -22,6 +22,20 @@ module.exports = {
       return false;
     }
   },
+  findAccount: async (phone, newPassword) => {
+    const query = `
+    UPDATE User
+    SET password=?
+    WHERE phone=?;`;
+    try {
+      const hash = await bcrypt.hash(newPassword, salt);
+      const result = await db.query(query, [hash, phone]);
+
+      return result[0];
+    } catch(error) {
+      return false;
+    }
+  },
   addUser: async (newUserData, randPassword) => {
     const query = 'INSERT INTO User(level, name, phone, password, email, deposit) VALUES(?, ?, ?, ?, ?, ?);';
 

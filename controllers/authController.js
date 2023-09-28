@@ -3,6 +3,7 @@ const authModel = require('../models/authModel.js');
 const createHTML = require('../nodemailer/createHTML.js');
 const userModel = require("../models/userModel.js");
 const jwt = require('jsonwebtoken');
+const mailer = require("../nodemailer/mailer.js");
 
 module.exports = {
   login: async (req, res) => {
@@ -10,53 +11,42 @@ module.exports = {
     try {
       const data = await authModel.login(loginData);
       console.log(data);
-      const token = jwt.sign(data, process.env.JWT);
-      res.json({ token: token });
+      if(data) {
+        const token = jwt.sign(data, process.env.JWT);
+        res.json({ token: token });
+      } else {
+        res.json({token: false});
+      }
     } catch (error) {
       res.json({ token: false });
+    }
+  },
+  findAccount: async (req, res) => {
+    const phone = req.body.phone;
+    try {
+      const newPassword = Math.random().toString(36).substring(2, 11);
+      const account = await userModel.getUserByPhone(phone);
+      if(account) {
+        await authModel.findAccount(phone, newPassword);
+        const result = await mailer(account.email, account.name, phone, newPassword);
+        res.json(result);
+      } else {
+        res.json({result: false});
+      }
+    } catch(error) {
+      res.json({result: false});
     }
   },
   addUser: async (req, res) => {
     const body = req.body;
     try {
-      const newUserData = jwt.verify(body, process.env.JWT);
-      try {
-        const randPassword = Math.random().toString(36).substring(2, 11);
+      const randPassword = Math.random().toString(36).substring(2, 11);
+      const result = await authModel.addUser(body, randPassword);
+      
+      // 합격자 정보 이메일 전송
+      const mailerResult = await mailer(body.email, body.name, body.phone, randPassword);
 
-        const result = await authModel.addUser(newUserData, randPassword);
-
-        // 합격자 정보 이메일 전송
-        const transporter = nodemailer.createTransport({
-          host: "smtp.gmail.com",
-          port: 465,
-          secure: true,
-          auth: {
-            user: process.env.PIRO_MAIL,
-            pass: process.env.PIRO_MAIL_KEY,
-          },
-        });
-
-        const htmlBody = createHTML(newUserData, randPassword);
-        try {
-          const info = await transporter.sendMail({
-            from: process.env.PIRO_MAIL,
-            to: newUserData.email,
-            subject: "[피로그래밍 어플 회원 정보]",
-            html: htmlBody,
-            attachments: [{
-              filename: 'logo.png',
-              path: __dirname + '/../public/images/logo.png',
-              cid: 'unique@nodemailer.com',
-            }]
-          });
-          console.log("Message sent: %s", info.messageId);
-          res.json({ result: result });
-        } catch (error) {
-          console.log(error);
-        }
-      } catch {
-        res.json(null);
-      }
+      return mailerResult;
     } catch (error) {
       res.json(null);
     }

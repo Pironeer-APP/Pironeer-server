@@ -10,4 +10,13 @@ module.exports = {
 
     return oneUserInfo[0][0];
   },
+  getUserByPhone: async (phone) => {
+    const query = `
+    SELECT *
+    FROM User
+    WHERE phone=?;`;
+    const userInfo = await db.query(query, [phone]);
+
+    return userInfo[0][0];
+  }
 }
