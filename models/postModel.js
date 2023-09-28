@@ -48,6 +48,3 @@ module.exports = {
   },
 };
 
-const deletePost = async (id) => {
-  await db.query("DELETE FROM Post WHERE post_id = ?", [id]);
-};
