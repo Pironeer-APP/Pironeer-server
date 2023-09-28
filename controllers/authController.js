@@ -1,6 +1,4 @@
-const nodemailer = require("nodemailer");
 const authModel = require('../models/authModel.js');
-const createHTML = require('../nodemailer/createHTML.js');
 const userModel = require("../models/userModel.js");
 const jwt = require('jsonwebtoken');
 const mailer = require("../nodemailer/mailer.js");
