@@ -3,14 +3,22 @@ const db = require('../config/db.js');
 module.exports = {
     showAssign: async (curUserLevel, curUserId) => {
         const query = `
-        SELECT assignshedule_id, title, due_date, created_at
-        FROM AssignSchedule
-        WHERE level=? AND category=?;
+        SELECT
+         ROW_NUMBER() OVER (ORDER BY AssignSchedule.created_at) AS AssignId,
+         AssignSchedule.title, AssignSchedule.due_date, AssignSchedule.created_at,
+         Assign.grade,
+         CASE
+            WHEN AssignSchedule.due_date < CURDATE() THEN TRUE
+            ELSE FALSE
+         END AS done
+        FROM
+         AssignSchedule
         JOIN
-        SELECT grade, assignschedule_id
-        FROM Assign
-        WHERE user_id=?`;
-        const AssignData = await db.query(query, [curUserLevel, 1, curUserId]); // 회원의 기수, 과제 카테고리, 회원 식별자로 필터링
+         Assign
+        ON
+         AssignSchedule.assignschedule_id = Assign.assignschedule_id
+        WHERE AssignSchedule.level = ? AND Assign.user_id = ?;`;
+        const AssignData = await db.query(query, [curUserLevel, curUserId]); // 회원의 기수, 회원 식별자로 필터링
         const Assign = AssignData[0];
         return Assign;
     }
