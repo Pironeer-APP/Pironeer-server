@@ -27,7 +27,6 @@ module.exports = {
   getCoupons: async (userInfo) => {
     const query = `SELECT * FROM Coupon WHERE user_id=?;`;
     const couponInfoList = await db.query(query, [userInfo.user_id]);
-  
     return couponInfoList[0];
   },
 }
