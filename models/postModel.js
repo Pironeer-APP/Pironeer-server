@@ -40,9 +40,14 @@ module.exports = {
   },
   deletePost: async (id) => {
     const query = 'DELETE FROM Post WHERE post_id=?;';
+    const imgquery = 'SELECT img_url FROM Image WHERE post_id=?;';
+    
+    const [imgPaths] = await db.query(imgquery, [id]);
     const [deleteResult] = await db.query(query, [id]);
+    //쿼리 실행 결과: [ { img_url: 'path/to/image1.jpg' },  { img_url: 'path/to/image2.jpg' },  ...]
+    console.log(imgPaths);
 
-    return deleteResult.affectedRows;
+    return [deleteResult.affectedRows, imgPaths];
   },
   connetImage: async (arr, id) => {
     //id: post_id,

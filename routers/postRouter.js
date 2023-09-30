@@ -1,5 +1,5 @@
 const express = require('express');
-const upload = require('../config/multerconfig')
+const upload = require('../config/multerconfig');
 
 const router = express.Router();
 const postController = require('../controllers/postController.js');
@@ -13,4 +13,3 @@ router.post('/delete/:post_id', postController.deletePost);
 router.post('/uploadimages', upload.array('images', 10), postController.connectImage);
 
 module.exports = router;
-    
