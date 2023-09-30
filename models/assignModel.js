@@ -25,45 +25,99 @@ module.exports = {
 
         return Assign;
     },
-    // readAssignAll: async (level) => {
-    //     const query = `
-    //     SELECT
-    //      AssignSchedule.title, AssignSchedule.created_at, AssignSchedule.assignschedule_id
-    //     FROM
-    //      AssignSchedule
-    //     WHERE
-    //      AssignSchedule.level = ?;
-    //     `
-    //     const AllData = await db.query(query, [level]);
-    //     const Data = AllData[0];
+    readAssignAll: async (level) => {
+        const query = `
+        SELECT
+         title, created_at,assignschedule_id
+        FROM
+         AssignSchedule
+        WHERE
+         level = ?;
+        `
+        const AllData = await db.query(query, [level]);
+        const Data = AllData[0];
 
-    //     return Data;
-    // },
-    // readAssignDetail: async (title, level) => {
-    //     const query = `
-    //     SELECT
-    //      ROW_NUMBER() OVER (ORDER BY Assign.user_id) AS AssignUserId,
-    //      AssignSchedule.title,
-    //      Assign.user_id, Assign.grade, Assign.reason
-    //     FROM
-    //      Assign
-    //     JOIN
-    //      AssignSchedule
-    //     ON
-    //      AssignSchedule.assignschedule_id = Assign.assignschedule_id
-    //     WHERE
-    //      AssignSchedule.title = ? AND AssignSchedule.level = ?;
-    //     `
-    //     const AssignDetailData = db.query(query, [title, level]);
-    //     const Data = AssignDetailData[0];
+        return Data;
+    },
+    readAssignDetail: async (title, level) => {
+        const query = `
+        SELECT
+         ROW_NUMBER() OVER (ORDER BY Assign.user_id) AS AssignUserId,
+         AssignSchedule.title,
+         Assign.user_id, Assign.grade, Assign.reason
+        FROM
+         Assign
+        JOIN
+         AssignSchedule
+        ON
+         AssignSchedule.assignschedule_id = Assign.assignschedule_id
+        WHERE
+         AssignSchedule.title = ? AND AssignSchedule.level = ?;
+        `
+        const AssignDetailData = db.query(query, [title, level]);
+        const Data = AssignDetailData[0];
 
-    //     return Data;
-    // },
-    // createAssign: async (level) => {
-    //     const query = `
-    //     INSERT INTO
-    //      Assign
-    //     `
-    // },
-    // updateAssign: async ()
+        return Data;
+    },
+    createAssign: async (level, inputTitle, inputDueDate) => {
+        const query = `
+        INSERT INTO
+         AssignSchedule (level, title, due_date) VALUES (?, ?, ?);
+        `
+        db.query(query, [level, inputTitle, inputDueDate]);
+    },
+    updateAssign: async (level, updateId) => {
+        const query = `
+        SELECT
+         title, due_date
+        FROM
+         AssignSchedule
+        WHERE
+         level = ? AND assignschedule_id = ?;
+        `
+        const Data = db.query(query, [level, updateId])
+
+        return Data[0];
+    },
+    updatedAssign: async (level, updateId, newTitle, newDueDate) => {
+        const query = `
+        UPDATE
+         AssignSchedule
+        SET
+         level = ? , title = ? , due_date = ?
+        WHERE
+         assignschedule_id = ?;
+        `
+        db.query(query, [level, updateId, newTitle, newDueDate]);
+    },
+    deleteAssign: async (level, deleteId) => {
+        const query = `
+        DELETE FROM
+         AssignSchedule
+        WHERE
+         level = ? AND assignschedule_id = ?;
+        `
+        db.query(query, [level, deleteId]);
+    },
+    readGrade: async (assignScheduleId, UserId) => {
+        const query = `
+        SELECT
+         grade
+        FROM
+         Assign
+        WHERE
+         assignschedule_id = ? AND user_id = ?;
+        `
+        const data = db.query(query, [assignScheduleId, UserId]);
+
+        return data[0];
+    },
+    createGrade: async (assignScheduleId, UserId, inputGrade, inputReason) => {
+        const query = `
+        INSERT INTO
+         Assign (user_id, grade, reason, assignschedule_id)
+        VALUES (? , ? , ?, ?);
+        `
+        db.query(query, [UserId, inputGrade, inputReason, assignScheduleId]);
+    }
 }
