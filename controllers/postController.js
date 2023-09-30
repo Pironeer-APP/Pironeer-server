@@ -1,6 +1,6 @@
 const postModel = require("../models/postModel");
 const fs = require('fs');
-const path = require('path');
+
 
 module.exports = {
   getPosts: async (req, res) => {
@@ -81,16 +81,49 @@ module.exports = {
       console.log(`Post with ID ${id} 여러개의 행 삭제됐거나 해당 행 발견되지 않음.`);
     }
   },
-  connectImage: async (req, res) => {
-    const image_array = req.files;
-    const post_id = req.body.post_id
+  connectImage: async (arr, id) => {
+    const connection = await db.getConnection();
 
     try {
-      await postModel.connectImage(image_array, post_id);
-      res.status(200).json({ message: '이미지 업로드 성공' });
+        await connection.beginTransaction();
+
+        // post_id와 연결된 image데이터가 있다면 삭제
+        const checkQuery = 'SELECT img_url FROM Image WHERE post_id=?;';
+        const [existingImages] = await connection.query(checkQuery, [id]);
+
+        if (existingImages.length > 0) {
+            // 각 이미지 삭제
+            const deletePromises = existingImages.map(img => {
+                return new Promise((resolve, reject) => {
+                    fs.unlink(img.img_url, (err) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            console.log('Image deleted successfully:', img.img_url);
+                            resolve();
+                        }
+                    });
+                });
+            });
+
+            await Promise.all(deletePromises); // fs.unlink가 비동기함수이므로 모든 삭제 작업이 완료될때까지 대기
+
+            const deleteQuery = 'DELETE FROM Image WHERE post_id=?;';
+            await connection.query(deleteQuery, [id]);
+        }
+
+        // 연결된 image 없다면 그냥 밑에 로직 실행해서 이미지 등록
+        const query = 'INSERT INTO Image (post_id, img_url) VALUES (?, ?);';
+        for (let img of arr) {
+            await connection.query(query, [id, img.path]);
+        }
+
+        await connection.commit();
     } catch (error) {
-      console.error('이미지 업로드 중 오류 발생:', error);
-      res.status(500).json({ message: '서버 내부 오류' });
+        await connection.rollback();
+        throw error;
+    } finally {
+        connection.release();
     }
-  }
+}
 };
