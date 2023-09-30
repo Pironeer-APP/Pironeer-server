@@ -9,8 +9,8 @@ module.exports = {
         WHEN type = '지각' THEN -10000
         WHEN type = 0 THEN -20000
         WHEN type = 1 THEN -10000
-        WHEN type = 10000 THEN 10000
-        WHEN type = 20000 THEN 20000
+        WHEN type = '10000원 쿠폰' THEN 10000
+        WHEN type = '20000원 쿠폰' THEN 20000
       END AS price
     FROM (
       SELECT type, created_at as date, DATE_FORMAT(created_at, '%m-%d') AS monthDay
