@@ -17,11 +17,14 @@ module.exports = {
     const id = req.params.post_id;
 
     if (!id) {
-      return res.status(400).json({ message: "url에 id 필요함" });
+      return res.status(400).json({ message: "url에 post_id 필요함" });
     }
+    const [post, imagePaths] = await postModel.getPostById(id);
+    console.log(imagePaths);
+    const result = imagePaths.map(img => (img.img_url));
+    console.log('result:', result);
 
-    const post = await postModel.getPostById(id);
-    return res.status(200).json({ post: post });
+    return res.status(200).json({ post: post, images: imagePaths });
   },
   createPost: async (req, res) => {
     const level = req.params.level;

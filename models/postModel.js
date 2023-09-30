@@ -10,9 +10,12 @@ module.exports = {
   },
   getPostById: async (id) => {
     const query = 'SELECT * FROM Post WHERE post_id=?;';
+    const imagequery = 'SELECT img_url FROM Image WHERE post_id=?;';
+
+    const [imagePaths] = await db.query(imagequery, [id])
     const [post] = await db.query(query, [id]);
 
-    return post[0];
+    return [post[0], imagePaths];
   },
   createPost: async (level, data) => {
     const { title, content, category } = data;
@@ -40,23 +43,16 @@ module.exports = {
   },
   deletePost: async (id) => {
     const query = 'DELETE FROM Post WHERE post_id=?;';
-    const imgquery = 'SELECT img_url FROM Image WHERE post_id=?;';
+    const imgQuery = 'SELECT img_url FROM Image WHERE post_id=?;';
     
-    const [imgPaths] = await db.query(imgquery, [id]);
+    const [imgPaths] = await db.query(imgQuery, [id]);
     const [deleteResult] = await db.query(query, [id]);
     //쿼리 실행 결과: [ { img_url: 'path/to/image1.jpg' },  { img_url: 'path/to/image2.jpg' },  ...]
     console.log(imgPaths);
 
     return [deleteResult.affectedRows, imgPaths];
   },
-  connetImage: async (arr, id) => {
-    //id: post_id,
-    //arr:각각의 image 객체들 배열
-    // imgae = {
-    //   name: image.fileName,
-    //   type: image.type,
-    //   uri: image.uri,
-    // };
+  connectImage: async (arr, id) => {
     const query = 'INSERT INTO Image (post_id, img_url) VALUES (?, ?)'
     console.log('arr:', arr); 
     
@@ -66,6 +62,6 @@ module.exports = {
       console.log(img_url)
       await db.query(query, [id, img_url]);
     }
-  },
+  }
 };
 
