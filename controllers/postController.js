@@ -24,7 +24,7 @@ module.exports = {
     const result = imagePaths.map(img => (img.img_url));
     console.log('result:', result);
 
-    return res.status(200).json({ post: post, images: imagePaths });
+    return res.status(200).json({ post: post, result: result });
   },
   createPost: async (req, res) => {
     const level = req.params.level;
