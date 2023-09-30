@@ -44,5 +44,8 @@ module.exports = {
 
     return deleteResult.affectedRows;
   },
+  connetImage: async () => {
+
+  },
 };
 
