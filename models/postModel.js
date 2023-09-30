@@ -3,21 +3,20 @@ const db = require("../config/db.js");
 module.exports = {
   //0  === 전체, 1 === 세션, 2 === 과제, 3 === 기타
   getPosts: async (level) => {
-    const query = "SELECT * FROM Post WHERE level=? ORDER BY post_id DESC;";
+    const query = 'SELECT * FROM Post WHERE level=? ORDER BY post_id DESC;';
     const [posts] = await db.query(query, [level]);
 
     return posts;
   },
   getPostById: async (id) => {
-    const query = "SELECT * FROM Post WHERE post_id=?;";
+    const query = 'SELECT * FROM Post WHERE post_id=?;';
     const [post] = await db.query(query, [id]);
 
     return post[0];
   },
   createPost: async (level, data) => {
     const { title, content, category } = data;
-    const query =
-      "INSERT INTO Post (level, title, content, category) VALUE (?, ?, ?, ?);";
+    const query = 'INSERT INTO Post (level, title, content, category) VALUES (?, ?, ?, ?);';
     const [createResult] = await db.query(query, [
       level,
       title,
@@ -29,8 +28,7 @@ module.exports = {
   },
   updatePost: async (id, data) => {
     const { title, content, category } = data;
-    const query =
-      "UPDATE Post SET title=?, content=?, category=? WHERE post_id=?;";
+    const query = 'UPDATE Post SET title=?, content=?, category=? WHERE post_id=?;';
     const [updateResult] = await db.query(query, [
       title,
       content,
@@ -38,13 +36,31 @@ module.exports = {
       id,
     ]);
 
-    return updateResult.insertId;
+    return updateResult.affectedRows;
   },
   deletePost: async (id) => {
-    const query = "DELETE FROM Post WHERE post_id=?;";
+    const query = 'DELETE FROM Post WHERE post_id=?;';
     const [deleteResult] = await db.query(query, [id]);
 
     return deleteResult.affectedRows;
+  },
+  connetImage: async (arr, id) => {
+    //id: post_id,
+    //arr:각각의 image 객체들 배열
+    // imgae = {
+    //   name: image.fileName,
+    //   type: image.type,
+    //   uri: image.uri,
+    // };
+    const query = 'INSERT INTO Image (post_id, img_url) VALUES (?, ?)'
+    console.log('arr:', arr); 
+    
+    let img_url;
+    for (let img of arr) {
+      img_url = img.path;
+      console.log(img_url)
+      await db.query(query, [id, img_url]);
+    }
   },
 };
 

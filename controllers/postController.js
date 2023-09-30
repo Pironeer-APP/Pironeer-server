@@ -43,16 +43,14 @@ module.exports = {
     const updateData = req.body;
     console.log("받아온 id:", id, "받아온 데이터:\n", updateData);
 
-    const updatedPostId = await postModel.updatePost(id, updateData);
+    const updatedRows = await postModel.updatePost(id, updateData);
 
-    if (updatedPostId) {
-      res
-        .status(201)
-        .json({ message: "post 업데이트 성공", updatedPostId: updatedPostId });
-      console.log("post 업데이트 성공");
+    if (updatedRows == 1) {
+      res.status(201).json({ message: "post 업데이트 성공", updatedPostId: id });
+      console.log(`post 업데이트 성공 post_id: ${id}`);
     } else {
-      res.status(400).json({ message: "post 업데이트 실패" });
-      console.log("post 업데이트 실패, 위치: postController");
+      res.status(400).json({ message: "post 업데이트 오류" });
+      console.log(`Post with ID ${id} 여러개의 행 수정됐거나 해당 행 발견되지 않음.`);
     }
   },
   deletePost: async (req, res) => {
@@ -60,13 +58,17 @@ module.exports = {
     const deletedRows = await postModel.deletePost(id);
 
     if (deletedRows == 1) {
-      console.log(`Post테이블 post_id:${id} 삭제 성공.`);
       res.status(200).json({ message: "Post deleted successfully." });
+      console.log(`Post테이블 post_id:${id} 삭제 성공.`);
     } else {
-      console.log(
-        `Post with ID ${id} 여러개의 행 삭제됐거나 해당 행 발견되지 않음.`
-      );
       res.status(404).json({ message: "Post 없거나 하나 이상의 행 삭제됨." });
+      console.log(`Post with ID ${id} 여러개의 행 삭제됐거나 해당 행 발견되지 않음.`);
     }
+  },
+  connectImage: async (req, res) => {
+    const image_array = req.files;
+    const post_id = req.body.post_id
+
+    await postModel.connetImage(image_array, post_id);
   },
 };
