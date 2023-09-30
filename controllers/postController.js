@@ -1,6 +1,6 @@
 const postModel = require("../models/postModel");
 const fs = require('fs');
-const path = require('path');
+
 
 module.exports = {
   getPosts: async (req, res) => {
