@@ -66,6 +66,9 @@ module.exports = {
     }
   },
   connectImage: async (req, res) => {
-    
+    const image_array = req.files;
+    const post_id = req.body.post_id
+
+    await postModel.connetImage(image_array, post_id);
   },
 };

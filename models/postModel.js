@@ -16,7 +16,7 @@ module.exports = {
   },
   createPost: async (level, data) => {
     const { title, content, category } = data;
-    const query = 'INSERT INTO Post (level, title, content, category) VALUE (?, ?, ?, ?);';
+    const query = 'INSERT INTO Post (level, title, content, category) VALUES (?, ?, ?, ?);';
     const [createResult] = await db.query(query, [
       level,
       title,
@@ -44,8 +44,23 @@ module.exports = {
 
     return deleteResult.affectedRows;
   },
-  connetImage: async () => {
-
+  connetImage: async (arr, id) => {
+    //id: post_id,
+    //arr:각각의 image 객체들 배열
+    // imgae = {
+    //   name: image.fileName,
+    //   type: image.type,
+    //   uri: image.uri,
+    // };
+    const query = 'INSERT INTO Image (post_id, img_url) VALUES (?, ?)'
+    console.log('arr:', arr); 
+    
+    let img_url;
+    for (let img of arr) {
+      img_url = img.path;
+      console.log(img_url)
+      await db.query(query, [id, img_url]);
+    }
   },
 };
 
