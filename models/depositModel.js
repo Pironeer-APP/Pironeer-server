@@ -40,5 +40,9 @@ module.exports = {
   createCoupon: async (userInfo) => {
     const query = `INSERT INTO Coupon (user_id,type) VALUES (?,10000원 쿠폰)`;
     await db.query(query, [userInfo.user_id,'10000원 쿠폰']);
-  }
+  },
+  deleteCoupon: async (userInfo) => {
+    const query = `DELETE FROM Coupon WHERE user_id=? ORDER BY coupon_id DESC LIMIT 1;`;
+    await db.query(query, [userInfo.user_id])
+  },
 }

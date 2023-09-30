@@ -15,5 +15,9 @@ module.exports = {
   createCoupon: async (req,res) => {
     const userInfo = req.body.userInfo;
     await depositModel.createCoupon(userInfo);
+  },
+  deleteCoupon: async (req,res) => {
+    const userInfo = req.body.userInfo;
+    await depositModel.deleteCoupon(userInfo);    
   }
 }
