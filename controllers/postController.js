@@ -1,4 +1,6 @@
 const postModel = require("../models/postModel");
+const fs = require('fs');
+const path = require('path');
 
 module.exports = {
   getPosts: async (req, res) => {
@@ -55,7 +57,18 @@ module.exports = {
   },
   deletePost: async (req, res) => {
     const id = req.params.post_id;
-    const deletedRows = await postModel.deletePost(id);
+    const [deletedRows, imgPaths] = await postModel.deletePost(id);
+    
+    //각 이미지 삭제
+    imgPaths.forEach(img => {
+      fs.unlink(img.img_url, (err) => {
+        if (err) {
+          console.error('Error deleting the image:', err);
+        } else {
+          console.log('Image deleted successfully:', img.img_url);
+        }
+        });
+    });
 
     if (deletedRows == 1) {
       res.status(200).json({ message: "Post deleted successfully." });
