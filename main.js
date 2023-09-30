@@ -13,6 +13,8 @@ const cors = require('cors');
 // app.use(cors(corsOptions));
 app.use(cors());
 
+///static 설정
+app.use('/uploads', express.static('uploads'));
 
 const bodyParser = require('body-parser');
 // parse application/x-www-form-urlencoded
