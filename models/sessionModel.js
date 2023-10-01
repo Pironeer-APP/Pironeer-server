@@ -21,5 +21,11 @@ module.exports = {
     const sessions = await db.query(query, [level]);
     
     return sessions[0];
-  }
+  },
+  getWeekSessions: async (level) => {
+    const query = 'SELECT *, DATE_FORMAT(date, "%m") AS month, DATE_FORMAT(date, "%d") AS day FROM Session WHERE level=? ORDER BY date;';
+    const sessions = await db.query(query, [level]);
+    
+    return sessions[0];
+  },
 }

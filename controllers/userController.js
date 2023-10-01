@@ -7,6 +7,7 @@ module.exports = {
     console.log(requestUser);
     try {
       const decoded = jwt.verify(requestUser, process.env.JWT);
+      console.log(decoded);
       res.json({oneUserInfo: decoded});
     } catch(error) {
       res.json(null);

@@ -38,7 +38,7 @@ app.use('/api/post', postRouter);
 app.use('/api/deposit', depositRouter);
 app.use('/api/user', userRouter);
 app.use('/api/session', sessionRouter);
-app.use('/api/code', attendRouter);
+app.use('/api/attend', attendRouter);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
