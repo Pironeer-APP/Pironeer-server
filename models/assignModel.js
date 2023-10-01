@@ -28,7 +28,7 @@ module.exports = {
     readAssignAll: async (level) => {
         const query = `
         SELECT
-         title, created_at,assignschedule_id
+         title, created_at, assignschedule_id, due_date
         FROM
          AssignSchedule
         WHERE
