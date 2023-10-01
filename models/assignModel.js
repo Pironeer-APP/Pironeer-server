@@ -42,20 +42,30 @@ module.exports = {
     console.log("Data: ", Data);
     return Data;
   },
-  readAssignDetail: async (title, level) => {
+  readAssignDetail: async (id, level) => {
+        // SELECT
+        //  ROW_NUMBER() OVER (ORDER BY Assign.user_id) AS AssignUserId,
+        //  AssignSchedule.title,
+        //  Assign.user_id, Assign.grade, Assign.reason
+        // FROM
+        //  Assign
+        // JOIN
+        //  AssignSchedule
+        // ON
+        //  AssignSchedule.assignschedule_id = Assign.assignschedule_id
+        // WHERE
+        //  AssignSchedule.title = ? AND AssignSchedule.level = ?;
     const query = `
         SELECT
-         ROW_NUMBER() OVER (ORDER BY Assign.user_id) AS AssignUserId,
-         AssignSchedule.title,
-         Assign.user_id, Assign.grade, Assign.reason
+         User.name, Assign.grade
         FROM
+         User
+        LEFT JOIN
          Assign
-        JOIN
-         AssignSchedule
         ON
-         AssignSchedule.assignschedule_id = Assign.assignschedule_id
+         Assign.user_id = User.user_id AND Assign.assignschedule_id = ?
         WHERE
-         AssignSchedule.title = ? AND AssignSchedule.level = ?;
+         User.level = ?;
         `;
     const AssignDetailData = db.query(query, [title, level]);
     const Data = AssignDetailData[0];
