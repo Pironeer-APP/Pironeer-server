@@ -96,4 +96,49 @@ module.exports = {
       return false;
     }
   },
+  updateAttend: async (user_id, attendType, session_id) => {
+    console.log(user_id, attendType, session_id);
+    const query = 'UPDATE Attend SET type=? WHERE user_id=? AND session_id=?;';
+    const result = await db.query(query, [attendType, user_id, session_id]);
+
+    return result[0];
+  },
+  getSessionAttendAdmin: async (level, session_id) => {
+    const qurey = `
+    SELECT User.user_id, Attend.session_id, User.name, User.level, User.is_admin, Attend.session_id, Attend.type
+    FROM
+    (
+      SELECT * FROM Attend WHERE session_id=?
+    ) AS Attend
+    RIGHT JOIN
+    (
+      SELECT * FROM User WHERE level=? AND is_admin=0
+    ) AS User
+    ON Attend.user_id=User.user_id;`;
+
+    const result = await db.query(qurey, [session_id, level]);
+
+    return result[0];
+  },
+  getSessionAndAttend: async (user_id, level) => {
+    const query = `
+    SELECT *
+    FROM
+    (
+      SELECT *
+      FROM Session
+      WHERE level=?
+    ) Session
+    LEFT OUTER JOIN
+    (
+      SELECT *
+      FROM Attend
+      WHERE user_id=?
+    ) Attend
+    ON Session.session_id=Attend.session_id;`;
+
+    const sessions = await db.query(query, [level, user_id]);
+
+    return sessions[0];
+  }
 }

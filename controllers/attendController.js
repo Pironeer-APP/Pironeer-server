@@ -111,5 +111,41 @@ module.exports = {
       console.log('[출석 종료 실패]', error);
       return res.json({ result: false });
     }
+  },
+  // 출결 수정
+  updateAttend: async (req, res) => {
+    const {user_id, attendType, session_id} = req.body;
+    const result = await attendModel.updateAttend(user_id, attendType, session_id);
+
+    res.json({result: result});
+  },
+  getSessionAttendAdmin: async (req, res) => {
+    const userToken = req.body.userToken;
+    const session_id = req.body.session_id;
+    try {
+      const userInfo = jwt.verify(userToken, process.env.JWT);
+      if(userInfo.is_admin) {
+        const attends = await attendModel.getSessionAttendAdmin(userInfo.level, session_id);
+        res.json({attends: attends});
+      } else {
+        console.log('[출석 정보 불러오기 실패]_관리자 권한 필요');
+        res.json({attends: false});
+      }
+    } catch(error) {
+      console.log('[출석 정보 불러오기 실패]', error);
+      res.json({attends: false});
+    }
+  },
+  getSessionAndAttend: async (req, res) => {
+    const {userToken} = req.body;
+    try {
+      const userInfo = jwt.verify(userToken, process.env.JWT);
+      const sessions = await attendModel.getSessionAndAttend(userInfo.user_id, userInfo.level);
+
+      res.json({sessions: sessions});
+    } catch(error) {
+      console.log(error);
+      res.json({sessions: false});
+    }
   }
 }
