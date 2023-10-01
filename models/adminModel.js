@@ -7,8 +7,8 @@ module.exports = {
     FROM User
     WHERE level=?;`;
 
-    // admin의 level이 넘어옴. admin의 level보다 1 큰 후배 기수들 정보만 가져오기
-    const userInfoList = await db.query(query, [level + 1]);
+    // admin의 level이 넘어옴. admin의 level 기수들 정보만 가져오기
+    const userInfoList = await db.query(query, [level]);
 
     return userInfoList[0];
   },

@@ -1,6 +1,4 @@
-const nodemailer = require("nodemailer");
 const authModel = require('../models/authModel.js');
-const createHTML = require('../nodemailer/createHTML.js');
 const userModel = require("../models/userModel.js");
 const jwt = require('jsonwebtoken');
 const mailer = require("../nodemailer/mailer.js");
@@ -15,7 +13,7 @@ module.exports = {
         const token = jwt.sign(data, process.env.JWT);
         res.json({ token: token });
       } else {
-        res.json({token: false});
+        res.json({ token: false });
       }
     } catch (error) {
       res.json({ token: false });
@@ -26,15 +24,15 @@ module.exports = {
     try {
       const newPassword = Math.random().toString(36).substring(2, 11);
       const account = await userModel.getUserByPhone(phone);
-      if(account) {
+      if (account) {
         await authModel.findAccount(phone, newPassword);
         const result = await mailer(account.email, account.name, phone, newPassword);
         res.json(result);
       } else {
-        res.json({result: false});
+        res.json({ result: false });
       }
-    } catch(error) {
-      res.json({result: false});
+    } catch (error) {
+      res.json({ result: false });
     }
   },
   addUser: async (req, res) => {
@@ -42,7 +40,7 @@ module.exports = {
     try {
       const randPassword = Math.random().toString(36).substring(2, 11);
       const result = await authModel.addUser(body, randPassword);
-      
+
       // 합격자 정보 이메일 전송
       const mailerResult = await mailer(body.email, body.name, body.phone, randPassword);
 
@@ -57,10 +55,9 @@ module.exports = {
     try {
       const userInfo = jwt.verify(req.body.user_token, process.env.JWT);
       const result = await authModel.compareInfo(data, type, userInfo);
-      console.log(result);
 
       res.json({ result: result });
-    } catch(error) {
+    } catch (error) {
       res.json({ result: null });
     }
   },
@@ -76,16 +73,17 @@ module.exports = {
         await authModel.updatePassword(data, userInfo.user_id);
       } else if (type === 'email') {
         await authModel.updateEmail(data, userInfo.user_id);
+      } else if (type === 'level' && userInfo.is_admin) { // 관리자만 기수 변경 가능
+        await authModel.updateLevel(data, userInfo.user_id);
       }
 
       let updatedUserInfo = await userModel.getOneUserInfo(userInfo.user_id);
       try {
         updatedUserInfo = jwt.sign(updatedUserInfo, process.env.JWT);
-        console.log(updatedUserInfo);
 
         res.json({ updatedUserInfo: updatedUserInfo });
-      } catch(error) {
-        res.json({updatedUserInfo: null});
+      } catch (error) {
+        res.json({ updatedUserInfo: null });
       }
     } catch (error) {
       res.json({ updatedUserInfo: null });

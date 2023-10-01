@@ -106,6 +106,20 @@ module.exports = {
       return false;
     }
   },
+  updateLevel: async (data, user_id) => {
+    const query = `
+    UPDATE User
+    SET level=?
+    WHERE user_id=? AND is_admin=1;`;
+
+    try {
+      const result = await db.query(query, [data, user_id]);
+      return result[0];
+    } catch(error) {
+      console.log(error);
+      return false;
+    }
+  },
   unregister: async (userInfo) => {
     const query = `DELETE FROM User WHERE user_id=?;`;
     
