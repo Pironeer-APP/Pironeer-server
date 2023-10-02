@@ -1,32 +1,46 @@
 const postModel = require("../models/postModel");
 const fs = require('fs');
 const db = require("../config/db.js");
-
-
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
+const secret_key = process.env.JWT;
 
 module.exports = {
   getPosts: async (req, res) => {
-    const level = req.params.level;
+    const token = req.body.userToken;
+    try {
+      const decoded = jwt.verify(token, secret_key);
 
-    if (!level) {
-      return res.status(400).json({ message: "url에 level 필요함" });
+      const level = req.params.level;
+      const posts = await postModel.getPosts(level);
+
+      return res.status(200).json({ posts: posts });
+    } catch (err) {
+      return res.status(401).json({message: 'INVALID TOKEN'})
     }
-
-    const posts = await postModel.getPosts(level);
-    return res.status(200).json({ posts: posts });
   },
   getPostById: async (req, res) => {
-    const id = req.params.post_id;
+    const token = req.body.userToken;
 
-    if (!id) {
-      return res.status(400).json({ message: "url에 post_id 필요함" });
+    try {
+      const decoded = jwt.verify(token, secret_key);
+      const id = req.params.post_id;
+
+      if (!id) {
+        return res.status(404).json({message: 'url에 post_id 필요함'})
+      }
+
+      const [post, imagePaths] = await postModel.getPostById(id);
+      //console.log(imagePaths);
+      const result = imagePaths.map(img => (img.img_url));
+      //console.log('result:', result);
+  
+      res.status(200).json({ post: post, result: result });
+  
+
+    } catch (err) {
+      res.status(401).json({message: 'INVALID TOKEN'})
     }
-    const [post, imagePaths] = await postModel.getPostById(id);
-    console.log(imagePaths);
-    const result = imagePaths.map(img => (img.img_url));
-    console.log('result:', result);
-
-    return res.status(200).json({ post: post, result: result });
   },
   createPost: async (req, res) => {
     const level = req.params.level;
