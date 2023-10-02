@@ -30,10 +30,11 @@ module.exports = {
   readAssignDetail: async (req, res) => {
     // 특정 과제의 세부 사항 (기수 별 회원 목록, 그 회원의 과제 결과)
 
-    // client: 관리할 level, 클릭한 과제의 title
-    const level = req.params.level;
-    const title = req.body.title;
-    const data = await assignModel.readAssignDetail(title, level);
+    // client: 관리할 level, 클릭한 과제의 assignschedule_id
+    const level = req.body.level;
+    const id = req.body.assignschedule_id;
+    const data = await assignModel.readAssignDetail(id, level);
+
     res.json({ data: data });
   },
   createAssign: async (req, res) => {
