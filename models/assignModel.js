@@ -28,14 +28,12 @@ module.exports = {
   readAssignAll: async (level) => {
     const query = `
         SELECT
+         ROW_NUMBER() OVER (ORDER BY AssignSchedule.due_date) AS NewAssignId,
          title, created_at, assignschedule_id, due_date
         FROM
          AssignSchedule
         WHERE
-         level = ?
-        ORDER BY 
-         due_date 
-        DESC;
+         level = ?;
         `;
     const AllData = await db.query(query, [level]);
     const Data = AllData[0];
@@ -68,7 +66,7 @@ module.exports = {
         WHERE
          User.level = ?;
         `;
-    const AssignDetailData = db.query(query, [title, level]);
+    const AssignDetailData = db.query(query, [id, level]);
     const Data = AssignDetailData[0];
 
     return Data;
