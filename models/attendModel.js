@@ -122,7 +122,7 @@ module.exports = {
   },
   getSessionAndAttend: async (user_id, level) => {
     const query = `
-    SELECT *
+    SELECT Session.session_id, Session.level, Session.title, Session.location, Session.date, Session.is_face, Attend.attend_id, Attend.user_id, Attend.type
     FROM
     (
       SELECT *
