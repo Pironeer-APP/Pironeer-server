@@ -31,7 +31,8 @@ module.exports = {
     const query = `
         SELECT
          ROW_NUMBER() OVER (ORDER BY AssignSchedule.due_date) AS NewAssignId,
-         title, created_at, assignschedule_id, DATE_FORMAT(due_date, "%m.%d") AS dueDate
+         title, assignschedule_id,
+         UPPER(DATE_FORMAT(due_date, "%m.%d %a")) AS dueDate
         FROM
          AssignSchedule
         WHERE
@@ -43,18 +44,6 @@ module.exports = {
     return Data;
   },
   readAssignDetail: async (id, level) => {
-        // SELECT
-        //  ROW_NUMBER() OVER (ORDER BY Assign.user_id) AS AssignUserId,
-        //  AssignSchedule.title,
-        //  Assign.user_id, Assign.grade, Assign.reason
-        // FROM
-        //  Assign
-        // JOIN
-        //  AssignSchedule
-        // ON
-        //  AssignSchedule.assignschedule_id = Assign.assignschedule_id
-        // WHERE
-        //  AssignSchedule.title = ? AND AssignSchedule.level = ?;
     const query = `
         SELECT
          ROW_NUMBER() OVER (ORDER BY User.name) AS studentId,
