@@ -57,6 +57,7 @@ module.exports = {
         //  AssignSchedule.title = ? AND AssignSchedule.level = ?;
     const query = `
         SELECT
+         ROW_NUMBER() OVER (ORDER BY User.name) AS studentId,
          User.name, Assign.grade
         FROM
          User
