@@ -25,17 +25,15 @@ module.exports = {
     // 운영진이 관리할 기수 level (운영진의 level + 1)
     const level = req.params.level;
     const data = await assignModel.readAssignAll(level);
-    console.log(level);
     res.json({ data: data });
   },
   readAssignDetail: async (req, res) => {
     // 특정 과제의 세부 사항 (기수 별 회원 목록, 그 회원의 과제 결과)
 
     // client: 관리할 level, 클릭한 과제의 title
-    const level = req.body.level;
+    const level = req.params.level;
     const title = req.body.title;
     const data = await assignModel.readAssignDetail(title, level);
-
     res.json({ data: data });
   },
   createAssign: async (req, res) => {
@@ -45,28 +43,29 @@ module.exports = {
     const level = req.params.level;
     const inputTitle = req.body.title;
     const inputDueDate = req.body.dateData;
-    console.log(level, inputTitle, inputDueDate);
     await assignModel.createAssign(level, inputTitle, inputDueDate);
 
     res.json();
   },
-  updateAssign: async (req, res) => {
-    // 관리할 기수의 과제 일정 update 시 기존의 정보 get
+  //   updateAssign: async (req, res) => {
+  //     // 관리할 기수의 과제 일정 update 시 기존의 정보 get
 
-    // client: 관리할 level, update할 과제 일정의 assignschedule_id
-    const level = req.body.level;
-    const updateId = req.body.updateId;
-    await assignModel.updateAssign(level, updateId);
-    //
-  },
+  //     // client: 관리할 level, update할 과제 일정의 assignschedule_id
+  //     const level = req.body.level;
+  //     const updateId = req.body.assignLevel;
+  //     console.log(level, updateId);
+  //     await assignModel.updateAssign(level, updateId);
+  //     //
+  //   },
   updatedAssign: async (req, res) => {
     // 관리할 기수의 과제 일정 update
 
     // client: 관리할 level, update할 과제 일정의 assignschedule_id, newTitle, newDueDate
-    const level = req.body.level;
-    const updateId = req.body.updateId;
-    const newTitle = req.body.newTitle;
-    const newDueDate = req.body.newDueDate;
+    const level = req.params.level;
+    const updateId = req.body.assignId;
+    const newTitle = req.body.title;
+    const newDueDate = req.body.date;
+    console.log("온 데이터: ", level, updateId, newTitle, newDueDate);
     await assignModel.updatedAssign(level, updateId, newTitle, newDueDate);
 
     res.json();
