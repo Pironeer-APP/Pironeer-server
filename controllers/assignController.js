@@ -29,7 +29,7 @@ module.exports = {
         const userInfo = jwt.verify(userToken, process.env.JWT);
         if (userInfo.is_admin) {
             const data = await assignModel.readAssignAll(userInfo.level);
-            req.json({ data: data });
+            res.json({ data: data });
         }
     } catch (error) {
         console.log('readAssignAll error', error);
@@ -45,7 +45,7 @@ module.exports = {
         const userInfo = jwt.verify(userToken, process.env.JWT);
         if (userInfo.is_admin) {
             const data = await assignModel.readAssignDetail(oneAssignscheduleId, userInfo.level);
-            req.json({ data: data });
+            res.json({ data: data });
         }
     } catch (error) {
         console.log('readAssignDetail error', error);
@@ -61,7 +61,7 @@ module.exports = {
         const userInfo = jwt.verify(userToken, process.env.JWT);
         if (userInfo.is_admin) {
             const data = await assignModel.createAssign(userInfo.level, inputTitle, inputDueDate);
-            req.json({ data: data }); // data 꼭 넘겨줘야 하나?
+            res.json({ data: data }); // data 꼭 넘겨줘야 하나?
         }
     } catch (error) {
         console.log('createAssign error', error);
@@ -78,7 +78,7 @@ module.exports = {
         if (userInfo.is_admin) {
             const data = await assignModel.updatedAssign(userInfo.level, updateId, newTitle, newDueDate);
             console.log("온 데이터: ", userInfo.level, updateId, newTitle, newDueDate);
-            req.json({ data: data });
+            res.json({ data: data });
         }
     } catch (error) {
         console.log('updateAssign error', error);
@@ -94,7 +94,7 @@ module.exports = {
         const userInfo = jwt.verify(userToken, process.env.JWT);
         if (userInfo.is_admin) {
             const data = await assignModel.deleteAssign(userInfo.level, deleteId);
-            req.json({ data: data });
+            res.json({ data: data });
         }
     } catch (error) {
         console.log('deleteAssign error', error);
@@ -110,7 +110,7 @@ module.exports = {
         const userInfo = jwt.verify(userToken, process.env.JWT);
         if (userInfo.is_admin) {
             const data = await assignModel.createGrade(assignScheduleId, userId, inputGrade);
-            req.json({ data: data });
+            res.json({ data: data });
         }
     } catch (error) {
         console.log('createGrade error', error);

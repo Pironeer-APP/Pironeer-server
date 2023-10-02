@@ -4,8 +4,10 @@ module.exports = {
   showAssign: async (curUserLevel, curUserId) => {
     const query = `
         SELECT
-         ROW_NUMBER() OVER (ORDER BY AssignSchedule.created_at) AS AssignId,
-         AssignSchedule.title, AssignSchedule.due_date, AssignSchedule.created_at,
+         ROW_NUMBER() OVER (ORDER BY AssignSchedule.due_date) AS AssignId,
+         AssignSchedule.title,
+         DATE_FORMAT(AssignSchedule.due_date, "%m.%d") AS dueDate,
+         UPPER(DATE_FORMAT(AssignSchedule.created_at, "%m.%d %a")) AS createdDate,
          Assign.grade,
          CASE
             WHEN AssignSchedule.due_date < CURDATE() THEN TRUE
@@ -16,11 +18,11 @@ module.exports = {
         LEFT JOIN
          Assign
         ON
-         AssignSchedule.assignschedule_id = Assign.assignschedule_id
+         AssignSchedule.assignschedule_id = Assign.assignschedule_id AND Assign.user_id = ?
         WHERE
-         AssignSchedule.level = ? AND Assign.user_id = ?;
+         AssignSchedule.level = ?;
         `;
-    const AssignData = await db.query(query, [curUserLevel, curUserId]); // 회원의 기수, 회원 식별자로 필터링
+    const AssignData = await db.query(query, [curUserId, curUserLevel]);
     const Assign = AssignData[0];
 
     return Assign;
@@ -29,7 +31,8 @@ module.exports = {
     const query = `
         SELECT
          ROW_NUMBER() OVER (ORDER BY AssignSchedule.due_date) AS NewAssignId,
-         title, created_at, assignschedule_id, due_date
+         title, assignschedule_id,
+         UPPER(DATE_FORMAT(due_date, "%m.%d %a")) AS dueDate
         FROM
          AssignSchedule
         WHERE
@@ -41,18 +44,6 @@ module.exports = {
     return Data;
   },
   readAssignDetail: async (id, level) => {
-        // SELECT
-        //  ROW_NUMBER() OVER (ORDER BY Assign.user_id) AS AssignUserId,
-        //  AssignSchedule.title,
-        //  Assign.user_id, Assign.grade, Assign.reason
-        // FROM
-        //  Assign
-        // JOIN
-        //  AssignSchedule
-        // ON
-        //  AssignSchedule.assignschedule_id = Assign.assignschedule_id
-        // WHERE
-        //  AssignSchedule.title = ? AND AssignSchedule.level = ?;
     const query = `
         SELECT
          ROW_NUMBER() OVER (ORDER BY User.name) AS studentId,
