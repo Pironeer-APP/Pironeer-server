@@ -9,10 +9,7 @@ router.post("/deleteCoupon", adminController.deleteCoupon);
 
 // admin assign 나중에 분리..?
 router.get("/assign/:level", assignController.readAssignAll);
-router.post(
-  "/assign/:level/:AssignSchedule_id",
-  assignController.readAssignDetail
-);
+router.post("/assign/:level/:AssignSchedule_id", assignController.readAssignDetail);
 router.post("/assign/:level/create", assignController.createAssign);
 // router.get("/assign/:level/update", assignController.updateAssign);
 router.post("/assign/:level/update", assignController.updatedAssign);
