@@ -137,7 +137,7 @@ module.exports = {
     }
   },
   getSessionAndAttend: async (req, res) => {
-    const {userToken} = req.body;
+    const userToken = req.body.userToken;
     try {
       const userInfo = jwt.verify(userToken, process.env.JWT);
       const sessions = await attendModel.getSessionAndAttend(userInfo.user_id, userInfo.level);
