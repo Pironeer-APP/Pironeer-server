@@ -20,18 +20,18 @@ module.exports = {
       FROM Assign
       WHERE user_id=?
       UNION 
-      SELECT type, used_at as date, DATE_FORMAT(used_at,'%m.%d') AS monthDay
+      SELECT type, updated_at as date, DATE_FORMAT(used_at,'%m.%d') AS monthDay
       FROM Coupon
-      WHERE user_id=? AND used_at IS NOT NULL
+      WHERE user_id=? AND is_used =?
     ) AS B
     ORDER BY date;`;
-    const historyList = await db.query(attendAndAssignQuery, [userInfo.user_id, userInfo.user_id, userInfo.user_id]);
+    const historyList = await db.query(attendAndAssignQuery, [userInfo.user_id, userInfo.user_id, userInfo.user_id, 1]);
 
     return historyList[0];
   },
   getCoupons: async (userInfo) => {
-    const query = `SELECT * FROM Coupon WHERE user_id=? AND used_at IS NULL;`;
-    const couponInfoList = await db.query(query, [userInfo.user_id]);
+    const query = `SELECT * FROM Coupon WHERE user_id=? AND is_used=?;`;
+    const couponInfoList = await db.query(query, [userInfo.user_id,0]);
     console.log(userInfo)
     console.log(couponInfoList);
     return couponInfoList[0];
