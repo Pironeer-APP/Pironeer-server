@@ -81,27 +81,37 @@ module.exports = {
     }
   },
   deletePost: async (req, res) => {
-    const id = req.params.post_id;
-    const [deletedRows, imgPaths] = await postModel.deletePost(id);
-    
-    //각 이미지 삭제
-    imgPaths.forEach(img => {
-      fs.unlink(img.img_url, (err) => {
-        if (err) {
-          console.error('Error deleting the image:', err);
-        } else {
-          console.log('Image deleted successfully:', img.img_url);
-        }
+    const token = req.body.userToken;
+    try {
+      const decoded = jwt.verify(token, secret_key);
+      console.log(decoded);
+      if (decoded.is_admin === 1) {
+        const id = req.body.post_id;
+        const [deletedRows, imgPaths] = await postModel.deletePost(id);
+        
+        //각 이미지 삭제
+        imgPaths.forEach(img => {
+          fs.unlink(img.img_url, (err) => {
+            if (err) {
+              console.error('Error deleting the image:', err);
+            } else {
+              console.log('Image deleted successfully:', img.img_url);
+            }
+            });
         });
-    });
-
-    if (deletedRows == 1) {
-      res.status(200).json({ message: "Post deleted successfully." });
-      console.log(`Post테이블 post_id:${id} 삭제 성공.`);
-    } else {
-      res.status(404).json({ message: "Post 없거나 하나 이상의 행 삭제됨." });
-      console.log(`Post with ID ${id} 여러개의 행 삭제됐거나 해당 행 발견되지 않음.`);
+    
+        if (deletedRows == 1) {
+          res.status(200).json({ message: "Post deleted successfully." });
+          console.log(`Post테이블 post_id:${id} 삭제 성공.`);
+        } else {
+          res.status(404).json({ message: "Post 없거나 하나 이상의 행 삭제됨." });
+          console.log(`Post with ID ${id} 여러개의 행 삭제됐거나 해당 행 발견되지 않음.`);
+        }
+      }  
+    } catch (err) {
+      res.status(401).json({message: 'INVALID TOKEN'});
     }
+    
   },
   connectImage: async (req, res) => {
     const image_array = req.files;
