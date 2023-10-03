@@ -1,7 +1,7 @@
 const attendModel = require('../models/attendModel.js');
 const jwt = require('jsonwebtoken');
 const getNextScheduleIdx = require('../reusable/getNextScheduleIdx.js');
-const { getTodaySession } = require('../models/sessionModel.js');
+const sessionModel = require('../models/sessionModel.js');
 
 module.exports = {
   generateCode: async (req, res) => {
