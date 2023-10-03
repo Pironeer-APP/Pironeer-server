@@ -19,6 +19,7 @@ module.exports = {
   getSessions: async (level) => {
     const query = `
     SELECT *,
+      ROW_NUMBER() OVER(ORDER BY Session.date DESC) AS cnt,
       DATE_FORMAT(date, "%Y") AS year, DATE_FORMAT(date, "%m") AS month, DATE_FORMAT(date, "%d") AS day, DATE_FORMAT(date, "%w") AS day_of_week,
       DATE_FORMAT(date, "%H") AS hour, DATE_FORMAT(date, "%i") AS minute, DATE_FORMAT(date, "%s") AS second, DATE_ADD(date, INTERVAL 1 HOUR) AS date_plus_1h,
       CASE
@@ -38,8 +39,7 @@ module.exports = {
         THEN 'SAT'
       END AS day_en
     FROM Session
-    WHERE level=?
-    ORDER BY date DESC;`;
+    WHERE level=?;`;
     const sessions = await db.query(query, [level]);
     
     return sessions[0];

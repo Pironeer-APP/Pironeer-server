@@ -4,7 +4,7 @@ module.exports = {
   showAssign: async (curUserLevel, curUserId) => {
     const query = `
         SELECT
-         ROW_NUMBER() OVER (ORDER BY AssignSchedule.due_date) AS AssignId,
+         ROW_NUMBER() OVER (ORDER BY AssignSchedule.due_date DESC) AS AssignId,
          AssignSchedule.title,
          DATE_FORMAT(AssignSchedule.due_date, "%m.%d") AS dueDate,
          UPPER(DATE_FORMAT(AssignSchedule.created_at, "%m.%d %a")) AS createdDate,
