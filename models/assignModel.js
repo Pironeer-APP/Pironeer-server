@@ -109,4 +109,25 @@ module.exports = {
         `;
         await db.query(query, [UserId, inputGrade, inputReason, assignScheduleId]);
   },
+  getCurrentAssigns: async (level) => {
+    const query = `
+    SELECT *
+    FROM AssignSchedule
+    WHERE due_date >= CURDATE() AND level=?
+    ORDER BY due_date DESC;`;
+    const currentAssigns = await db.query(query, [level]);
+
+    return currentAssigns[0];
+  },
+  getRecentAssign: async (level) => {
+    const query = `
+    SELECT *
+    FROM AssignSchedule
+    WHERE due_date < CURDATE() AND level=?
+    ORDER BY due_date DESC
+    LIMIT 1;`;
+    const recentAssign = await db.query(query, [level]);
+
+    return recentAssign[0][0];
+  }
 };
