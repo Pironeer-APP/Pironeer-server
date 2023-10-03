@@ -4,5 +4,6 @@ const depositController = require('../controllers/depositController.js');
 
 router.post('/getDepositHistory', depositController.getDepositHistory);
 router.post('/getCoupons', depositController.getCoupons);
-router.post('/createCoupon', depositController.createCoupon);
+router.post("/addCoupon", depositController.addCouponToUser);
+router.post("/deleteCoupon", depositController.deleteCoupon);
 module.exports = router;

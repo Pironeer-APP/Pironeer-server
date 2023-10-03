@@ -3,14 +3,13 @@ const db = require('../config/db.js');
 module.exports = {
   getDepositHistory: async (userInfo) => {
     const attendAndAssignQuery = `
-    SELECT *, @SEQ := @SEQ+1 AS SEQ,
+    SELECT *, ROW_NUMBER() OVER (ORDER BY date) AS CNT,
       CASE
-        WHEN type = '결석' THEN '-20000'        
-        WHEN type = '지각' THEN '-10000'
+        WHEN type = '결석' THEN -20000        
+        WHEN type = '지각' THEN -10000
         WHEN type = 0 THEN -20000
         WHEN type = 1 THEN -10000
-        WHEN type = '10000원 쿠폰' THEN '+10000'
-        WHEN type = '20000원 쿠폰' THEN '+20000'
+        WHEN type = '보증금 방어권' THEN 10000
       END AS price
     FROM (
       SELECT type, created_at as date, DATE_FORMAT(created_at, '%m-%d') AS monthDay
@@ -24,8 +23,8 @@ module.exports = {
       SELECT type, used_at as date, DATE_FORMAT(used_at,'%m-%d') AS monthDay
       FROM Coupon
       WHERE user_id=? AND used_at IS NOT NULL
-      ORDER BY date
-    ) AS B, (SELECT @SEQ := 0) A;`;
+    ) AS B
+    ORDER BY date;`;
     const historyList = await db.query(attendAndAssignQuery, [userInfo.user_id, userInfo.user_id, userInfo.user_id]);
 
     return historyList[0];
@@ -37,8 +36,23 @@ module.exports = {
     console.log(couponInfoList);
     return couponInfoList[0];
   },
-  createCoupon: async (userInfo) => {
-    const query = `INSERT INTO Coupon (user_id,type) VALUES (?,10000원 쿠폰)`;
-    await db.query(query, [userInfo.user_id,'10000원 쿠폰']);
+  addCouponToUser: async (couponData) => {
+    const query =`
+    INSERT INTO Coupon(user_id, type)
+    VALUES(?, "보증금 방어권");`; //is_used는 default 0임
+
+    const result = await db.query(query, [couponData.user_id]);
+    
+    return result[0];
+  },
+  deleteCoupon: async (coupon_id) => {
+    const query = 'DELETE FROM Coupon WHERE coupon_id=?;';
+    try {
+      await db.query(query, [coupon_id]);
+      return true;
+    } catch(error) {
+      console.log(error);
+      return false;
+    }
   }
 }
