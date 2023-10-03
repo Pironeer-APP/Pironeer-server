@@ -4,8 +4,6 @@ const adminController = require("../controllers/adminController.js");
 const assignController = require("../controllers/assignController.js");
 
 router.post("/getUserInfo", adminController.getUserInfo);
-router.post("/addCoupon", adminController.addCouponToUser);
-router.post("/deleteCoupon", adminController.deleteCoupon);
 
 // admin assign 나중에 분리..?
 router.get("/assign/:level", assignController.readAssignAll);
