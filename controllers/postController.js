@@ -66,19 +66,30 @@ module.exports = {
     
   },
   updatePost: async (req, res) => {
-    const id = req.params.post_id;
-    const updateData = req.body;
-    console.log("받아온 id:", id, "받아온 데이터:\n", updateData);
-
-    const updatedRows = await postModel.updatePost(id, updateData);
-
-    if (updatedRows == 1) {
-      res.status(201).json({ message: "post 업데이트 성공", updatedPostId: id });
-      console.log(`post 업데이트 성공 post_id: ${id}`);
-    } else {
-      res.status(400).json({ message: "post 업데이트 오류" });
-      console.log(`Post with ID ${id} 여러개의 행 수정됐거나 해당 행 발견되지 않음.`);
+    const token = req.body.userToken;
+    try {
+      const decoded = jwt.verify(token, secret_key);
+      
+      if (decoded.is_admin === 1) {
+        const id = req.body.post_id;
+        const updateData = [req.body.title, req.body.content, req.body.category];
+        console.log("받아온 id:", id, "받아온 데이터:\n", updateData);
+    
+        const updatedRows = await postModel.updatePost(id, updateData);
+    
+        if (updatedRows == 1) {
+          res.status(201).json({ message: "post 업데이트 성공", updatedPostId: id });
+          console.log(`post 업데이트 성공 post_id: ${id}`);
+        } else {
+          res.status(400).json({ message: "post 업데이트 오류" });
+          console.log(`Post with ID ${id} 여러개의 행 수정됐거나 해당 행 발견되지 않음.`);
+        }
+      }
+    } catch (err) {
+      res.status(401).json({messgae: 'INVALID TOKEN'})
     }
+    
+
   },
   deletePost: async (req, res) => {
     const token = req.body.userToken;
