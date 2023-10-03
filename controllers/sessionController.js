@@ -1,5 +1,6 @@
 const sessionModel = require('../models/sessionModel');
 const jwt = require('jsonwebtoken');
+const getNextScheduleIdx = require('../reusable/getNextScheduleIdx');
 
 module.exports = {
   addSchedule: async (req, res) => {
@@ -43,7 +44,10 @@ module.exports = {
       const userInfo = jwt.verify(userToken, process.env.JWT);
       const sessions = await sessionModel.getSessions(userInfo.level);
 
-      res.json({ sessions: sessions });
+      const nextSessionIdx = getNextScheduleIdx.getNextScheduleIdx(sessions);
+      console.log(nextSessionIdx);
+
+      res.json({ sessions: sessions, nextSessionIdx: nextSessionIdx });
     } catch (error) {
       console.log('[세션 일정 조회 실패]', error);
       res.json({ sessions: false });
