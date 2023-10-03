@@ -7,9 +7,9 @@ module.exports = {
       CASE
         WHEN type = '결석' THEN -20000        
         WHEN type = '지각' THEN -10000
+        WHEN type = '보증금 방어권' THEN +10000
         WHEN type = 0 THEN -20000
         WHEN type = 1 THEN -10000
-        WHEN type = '보증금 방어권' THEN +10000
       END AS price
     FROM (
       SELECT type, created_at as date, DATE_FORMAT(created_at, '%m.%d') AS monthDay
