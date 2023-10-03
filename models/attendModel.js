@@ -122,7 +122,30 @@ module.exports = {
   },
   getSessionAndAttend: async (user_id, level) => {
     const query = `
-    SELECT Session.session_id, Session.level, Session.title, Session.location, Session.date, Session.is_face, Attend.attend_id, Attend.user_id, Attend.type
+    SELECT
+      ROW_NUMBER() OVER(ORDER BY Session.date DESC) AS cnt,
+      Session.session_id, Session.level, Session.title, Session.location,
+      Session.date, Session.is_face, Attend.attend_id, Attend.user_id, Attend.type,
+      DATE_FORMAT(date, "%Y") AS year, DATE_FORMAT(date, "%m") AS month,
+      DATE_FORMAT(date, "%d") AS day, DATE_FORMAT(date, "%w") AS day_of_week,
+      DATE_FORMAT(date, "%H") AS hour, DATE_FORMAT(date, "%i") AS minute,
+      DATE_FORMAT(date, "%s") AS second, DATE_ADD(date, INTERVAL 1 HOUR) AS date_plus_1h,
+      CASE
+        WHEN DATE_FORMAT(date, "%w")='0'
+        THEN 'SUN'
+        WHEN DATE_FORMAT(date, "%w")='1'
+        THEN 'MON'
+        WHEN DATE_FORMAT(date, "%w")='2'
+        THEN 'TUE'
+        WHEN DATE_FORMAT(date, "%w")='3'
+        THEN 'WED'
+        WHEN DATE_FORMAT(date, "%w")='4'
+        THEN 'THU'
+        WHEN DATE_FORMAT(date, "%w")='5'
+        THEN 'FRI'
+        WHEN DATE_FORMAT(date, "%w")='6'
+        THEN 'SAT'
+      END AS day_en
     FROM
     (
       SELECT *
