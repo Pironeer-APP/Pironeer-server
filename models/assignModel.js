@@ -46,7 +46,7 @@ module.exports = {
     const query = `
         SELECT
          ROW_NUMBER() OVER (ORDER BY User.name) AS studentId,
-         User.name, Assign.grade
+         User.name, User.user_id, Assign.grade
         FROM
          User
         LEFT JOIN
@@ -88,26 +88,24 @@ module.exports = {
         `;
         await db.query(query, [level, deleteId]);
   },
-  readGrade: async (assignScheduleId, UserId) => {
+  createGrade: async (assignScheduleId, UserId, inputGrade) => {
     const query = `
-        SELECT
-         grade
-        FROM
+        INSERT INTO
+         Assign (user_id, grade, assignschedule_id)
+        VALUES (? , ? , ?);
+        `;
+        await db.query(query, [UserId, inputGrade, assignScheduleId]);
+  },
+  updateGrade: async (assignScheduleId, UserId, updateGrade) => {
+    const query = `
+        UPDATE
          Assign
+        SET
+         grade = ?
         WHERE
          assignschedule_id = ? AND user_id = ?;
         `;
-    const GradeData = await db.query(query, [assignScheduleId, UserId]);
-
-    return GradeData[0];
-  },
-  createGrade: async (assignScheduleId, UserId, inputGrade, inputReason) => {
-    const query = `
-        INSERT INTO
-         Assign (user_id, grade, reason, assignschedule_id)
-        VALUES (? , ? , ?, ?);
-        `;
-        await db.query(query, [UserId, inputGrade, inputReason, assignScheduleId]);
+        await db.query(query, [updateGrade, assignScheduleId, UserId]);
   },
   getCurrentAssigns: async (level) => {
     const query = `
