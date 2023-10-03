@@ -117,4 +117,26 @@ module.exports = {
         res.json({ data: false });
     }
   },
+  getCurrentAssigns: async (req, res) => {
+    const {userToken} = req.body;
+    try {
+        const userInfo = jwt.verify(userToken, process.env.JWT);
+        const currentAssigns = await assignModel.getCurrentAssigns(userInfo.level);
+        res.json({currentAssign: currentAssigns[0], currentAssignCnt: currentAssigns.length});
+    } catch(error) {
+        console.log('[getCurrentAssigns error]', error);
+        res.json({currentAssign: false, currentAssignCnt: false});
+    }
+  },
+  getRecentAssign: async (req, res) => {
+    const {userToken} = req.body;
+    try {
+        const userInfo = jwt.verify(userToken, process.env.JWT);
+        const recentAssign = await assignModel.getRecentAssign(userInfo.level);
+        res.json({recentAssign: recentAssign});
+    } catch(error) {
+        console.log('[getRecentAssign error]', error);
+        res.json({recentAssign: false});
+    }
+  }
 };
