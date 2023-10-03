@@ -79,7 +79,6 @@ module.exports = {
         const userInfo = jwt.verify(userToken, process.env.JWT);
         if (userInfo.is_admin) {
             await assignModel.updateAssign(userInfo.level, assignId, title, formattedDate);
-            console.log("온 데이터: ", userInfo.level, assignId, title, date);
             res.json();
         }
     } catch (error) {
