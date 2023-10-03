@@ -20,7 +20,7 @@ module.exports = {
     return [post[0], imagePaths];
   },
   createPost: async (level, data) => {
-    const { title, content, category } = data;
+    const [title, content, category] = data;
     const query = 'INSERT INTO Post (level, title, content, category) VALUES (?, ?, ?, ?);';
     const [createResult] = await db.query(query, [
       level,
@@ -32,7 +32,7 @@ module.exports = {
     return createResult.insertId;
   },
   updatePost: async (id, data) => {
-    const { title, content, category } = data;
+    const [title, content, category] = data;
     const query = 'UPDATE Post SET title=?, content=?, category=? WHERE post_id=?;';
     const [updateResult] = await db.query(query, [
       title,
