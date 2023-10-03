@@ -46,7 +46,7 @@ module.exports = {
     const query = `
         SELECT
          ROW_NUMBER() OVER (ORDER BY User.name) AS studentId,
-         User.name, Assign.grade
+         User.name, User.user_id, Assign.grade
         FROM
          User
         LEFT JOIN
@@ -87,19 +87,6 @@ module.exports = {
          level = ? AND assignschedule_id = ?;
         `;
         await db.query(query, [level, deleteId]);
-  },
-  readGrade: async (assignScheduleId, UserId) => {
-    const query = `
-        SELECT
-         grade
-        FROM
-         Assign
-        WHERE
-         assignschedule_id = ? AND user_id = ?;
-        `;
-    const GradeData = await db.query(query, [assignScheduleId, UserId]);
-
-    return GradeData[0];
   },
   createGrade: async (assignScheduleId, UserId, inputGrade, inputReason) => {
     const query = `
