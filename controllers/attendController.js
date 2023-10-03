@@ -1,5 +1,6 @@
 const attendModel = require('../models/attendModel.js');
 const jwt = require('jsonwebtoken');
+const getNextScheduleIdx = require('../reusable/getNextScheduleIdx.js');
 
 module.exports = {
   generateCode: async (req, res) => {
@@ -37,6 +38,7 @@ module.exports = {
           return res.json({ result: result });
         }
         console.log('[출석 실패]');
+        return res.json({ result: false });
       } catch (error) {
         console.log('[출석 실패]', error);
         return res.json({ result: false });
@@ -142,7 +144,9 @@ module.exports = {
       const userInfo = jwt.verify(userToken, process.env.JWT);
       const sessions = await attendModel.getSessionAndAttend(userInfo.user_id, userInfo.level);
 
-      res.json({sessions: sessions});
+      const nextSessionIdx = getNextScheduleIdx.getNextScheduleIdx(sessions);
+
+      res.json({sessions: sessions, nextSessionIdx: nextSessionIdx});
     } catch(error) {
       console.log(error);
       res.json({sessions: false});
