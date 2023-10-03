@@ -104,7 +104,7 @@ module.exports = {
     }
   },
   createGrade: async (req, res) => {
-    // 특정 과제 일정 중 특정 회원의 과제 결과를 create/update
+    // 특정 과제 일정 중 특정 회원의 과제 결과를 create
     // client: 현재 들어온 페이지의 과제 일정 assignschedule_id, 선택한 회원의 user_id, 회원의 과제 결과 inputGrade
     const { userToken, assignScheduleId, userId, inputGrade } = req.body;
 
@@ -116,6 +116,22 @@ module.exports = {
         }
     } catch (error) {
         console.log('createGrade error', error);
+        res.json({ data: false });
+    }
+  },
+  updateGrade: async (req, res) => {
+    // 특정 과제 일정 중 특정 회원의 과제 결과를 update
+    // client: 현재 들어온 페이지의 과제 일정 assignschedule_id, 선택한 회원의 user_id, 회원의 과제 결과 inputGrade
+    const { userToken, assignScheduleId, userId, updateGrade } = req.body;
+
+    try {
+        const userInfo = jwt.verify(userToken, process.env.JWT);
+        if (userInfo.is_admin) {
+            const data = await assignModel.updateGrade(assignScheduleId, userId, updateGrade);
+            res.json({ data: data });
+        }
+    } catch (error) {
+        console.log('updateGrade error', error);
         res.json({ data: false });
     }
   },

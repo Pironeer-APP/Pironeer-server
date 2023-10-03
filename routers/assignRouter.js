@@ -9,7 +9,7 @@ router.post("/readAssign/detail", assignController.readAssignDetail); // AdminGr
 router.post("/createAssign", assignController.createAssign); // AdminCreateAssignment
 router.post("/updateAssign", assignController.updateAssign); //
 router.post("/deleteAssign", assignController.deleteAssign);
-// router.post("/createAssignGrade", assignController.createGrade);
-router.post('')
+router.post("/createAssignGrade", assignController.createGrade);
+router.post("/updateAssignGrade", assignController.updateGrade);
 
 module.exports = router;

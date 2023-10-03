@@ -88,12 +88,23 @@ module.exports = {
         `;
         await db.query(query, [level, deleteId]);
   },
-  createGrade: async (assignScheduleId, UserId, inputGrade, inputReason) => {
+  createGrade: async (assignScheduleId, UserId, inputGrade) => {
     const query = `
         INSERT INTO
-         Assign (user_id, grade, reason, assignschedule_id)
-        VALUES (? , ? , ?, ?);
+         Assign (user_id, grade, assignschedule_id)
+        VALUES (? , ? , ?);
         `;
-        await db.query(query, [UserId, inputGrade, inputReason, assignScheduleId]);
+        await db.query(query, [UserId, inputGrade, assignScheduleId]);
+  },
+  updateGrade: async (assignScheduleId, UserId, updateGrade) => {
+    const query = `
+        UPDATE
+         Assign
+        SET
+         grade = ?
+        WHERE
+         assignschedule_id = ? AND user_id = ?;
+        `;
+        await db.query(query, [updateGrade, assignScheduleId, UserId]);
   },
 };
