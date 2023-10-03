@@ -21,10 +21,8 @@ module.exports = {
   getPostById: async (req, res) => {
     const token = req.body.userToken;
     const id = req.body.post_id;
-    console.log(req.body);
     try {
       const decoded = jwt.verify(token, secret_key);
-      console.log('getpostbyid-------------\n', decoded, id)
       const [post, imagePaths] = await postModel.getPostById(id);
       //console.log(imagePaths);
       const result = imagePaths.map(img => (img.img_url));
@@ -37,21 +35,35 @@ module.exports = {
     }
   },
   createPost: async (req, res) => {
-    const level = req.params.level;
-    const createData = req.body;
-    console.log("받아온 level:", level, "받아온 데이터:\n", createData);
+    console.log('BE:', req.body);
 
-    const createdPostId = await postModel.createPost(level, createData);
-
-    if (createdPostId) {
-      res
-        .status(201)
-        .json({ message: "post 생성 성공", createdPostId: createdPostId });
-      console.log("post 생성 성공");
-    } else {
-      res.status(400).json({ message: "post 생성 실패" });
-      console.log("post 생성 실패, 위치: postController");
+    const token = req.body.userToken;
+    
+    try {
+      const decoded = jwt.verify(token, secret_key);
+    
+      if (decoded.is_admin === 1) {
+        const level = decoded.level;
+        const createData = [req.body.title, req.body.content, req.body.category];
+  
+        console.log("받아온 level:", level, "받아온 데이터:\n", createData);
+  
+        const createdPostId = await postModel.createPost(level, createData);
+  
+        if (createdPostId) {
+          res
+            .status(201)
+            .json({ message: "post 생성 성공", createdPostId: createdPostId });
+          console.log("post 생성 성공");
+        } else {
+          res.status(400).json({ message: "post 생성 실패" });
+          console.log("post 생성 실패, 위치: postController");
+        }
+      }  
+    } catch (err) {
+      res.status(401).json({message: 'INVALID TOKEN'});
     }
+    
   },
   updatePost: async (req, res) => {
     const id = req.params.post_id;
