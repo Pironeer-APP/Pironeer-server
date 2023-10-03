@@ -7,11 +7,10 @@ const secret_key = process.env.JWT;
 
 module.exports = {
   getPosts: async (req, res) => {
-    const token = req.body.userToken;
+    const token = req.body.userToken
     try {
       const decoded = jwt.verify(token, secret_key);
-
-      const level = req.params.level;
+      const level = decoded.level;
       const posts = await postModel.getPosts(level);
 
       return res.status(200).json({ posts: posts });
@@ -21,15 +20,11 @@ module.exports = {
   },
   getPostById: async (req, res) => {
     const token = req.body.userToken;
-
+    const id = req.body.post_id;
+    console.log(req.body);
     try {
       const decoded = jwt.verify(token, secret_key);
-      const id = req.params.post_id;
-
-      if (!id) {
-        return res.status(404).json({message: 'url에 post_id 필요함'})
-      }
-
+      console.log('getpostbyid-------------\n', decoded, id)
       const [post, imagePaths] = await postModel.getPostById(id);
       //console.log(imagePaths);
       const result = imagePaths.map(img => (img.img_url));
@@ -37,7 +32,6 @@ module.exports = {
   
       res.status(200).json({ post: post, result: result });
   
-
     } catch (err) {
       res.status(401).json({message: 'INVALID TOKEN'})
     }
