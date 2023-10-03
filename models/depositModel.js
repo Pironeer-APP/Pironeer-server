@@ -9,7 +9,7 @@ module.exports = {
         WHEN type = '지각' THEN -10000
         WHEN type = 0 THEN -20000
         WHEN type = 1 THEN -10000
-        WHEN type = '보증금 방어권' THEN 10000
+        WHEN type = '보증금 방어권' THEN +10000
       END AS price
     FROM (
       SELECT type, created_at as date, DATE_FORMAT(created_at, '%m.%d') AS monthDay
@@ -20,20 +20,17 @@ module.exports = {
       FROM Assign
       WHERE user_id=?
       UNION 
-      SELECT type, updated_at as date, DATE_FORMAT(used_at,'%m.%d') AS monthDay
+      SELECT type, updated_at as date, DATE_FORMAT(updated_at,'%m.%d') AS monthDay
       FROM Coupon
       WHERE user_id=? AND is_used =?
     ) AS B
     ORDER BY date;`;
     const historyList = await db.query(attendAndAssignQuery, [userInfo.user_id, userInfo.user_id, userInfo.user_id, 1]);
-
     return historyList[0];
   },
   getCoupons: async (userInfo) => {
     const query = `SELECT * FROM Coupon WHERE user_id=? AND is_used=?;`;
     const couponInfoList = await db.query(query, [userInfo.user_id,0]);
-    console.log(userInfo)
-    console.log(couponInfoList);
     return couponInfoList[0];
   },
   addCouponToUser: async (couponData) => {
