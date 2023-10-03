@@ -9,10 +9,10 @@ module.exports = {
   },
   generateCode: async () => {
     const randomCode = Math.floor(Math.random() * 9000 + 1000); //1000과 9999사이
-    const query = 'INSERT INTO Code(code) VALUES (?)';
-    const code = await db.query(query, [randomCode]);
+    const query1 = 'INSERT INTO Code(code) VALUES (?)';
+    await db.query(query1, [randomCode]);
 
-    return code[0][0];
+    return randomCode;
   },
   addTempAttend: async (user_id, type) => {
     const query = `
