@@ -1,6 +1,7 @@
 const attendModel = require('../models/attendModel.js');
 const jwt = require('jsonwebtoken');
 const getNextScheduleIdx = require('../reusable/getNextScheduleIdx.js');
+const { getTodaySession } = require('../models/sessionModel.js');
 
 module.exports = {
   generateCode: async (req, res) => {
@@ -54,31 +55,34 @@ module.exports = {
     try {
       const userInfo = jwt.verify(userToken, process.env.JWT);
       const is_admin = userInfo.is_admin;
-      const session_id = req.body.session_id;
+      
+      const todaySession = sessionModel.getTodaySession();
 
       if (is_admin) {
         try {
-          const attends = await attendModel.getSessionAttend(session_id);
+          const attends = await attendModel.getSessionAttend(todaySession.session_id);
           let result;
+          let part;
           // 첫 번째 출결: 오늘 날짜의 Attend 테이블 데이터가 없음
           if (attends) {
-            result = await attendModel.addFirstAttend(session_id, absentUserIdList, tempAttendList);
+            result = await attendModel.addFirstAttend(todaySession.session_id);
+            part = 1;
           } else {
             // 두 번째 출결: 오늘 날짜의 Attend 테이블 데이터가 있음
-            result = await attendModel.addNextAttend(session_id, 2);
+            result = await attendModel.addNextAttend(todaySession.session_id, 2);
+            part = 2;
           }
           console.log('[출석 저장 성공]');
-          res.json({ result: result });
+          return res.json({ result: result, part: part });
         } catch (error) {
           console.log('[출석 저장 실패]', error);
-          console.log(error);
         }
       }
       console.log('[출석 저장 실패_관리자 아님]');
-      res.json({ result: false });
+      return res.json({ result: false, part: false });
     } catch (error) {
       console.log('[출석 저장 실패]', error);
-      return res.json({ result: false });
+      return res.json({ result: false, part: false });
     }
   },
   // 출결 종료 버튼을 눌렀을 때
@@ -87,31 +91,34 @@ module.exports = {
     try {
       const userInfo = jwt.verify(userToken, process.env.JWT);
       const is_admin = userInfo.is_admin;
-      const session_id = req.body.session_id;
+
+      const todaySession = sessionModel.getTodaySession();
+      
       if (is_admin) {
 
-        const attends = await attendModel.getSessionAttend(session_id);
+        const attends = await attendModel.getSessionAttend(todaySession.session_id);
 
         if (attends) {
           try {
             // 세 번째 출결
-            const result = await attendModel.addNextAttend(session_id, 3);
+            const result = await attendModel.addNextAttend(todaySession.session_id, 3);
+            const part = 3;
             console.log('[출석 종료 성공]');
-            res.json({ result: result });
+            return res.json({ result: result, part: part });
           } catch (error) {
             console.log('[출석 종료 실패]', error);
             console.log(error);
           }
         } else {
           console.log('[출석 종료 실패_진짜 출석 테이블 데이터 없음]');
-          res.json({ result: false });
+          return res.json({ result: false, part: false });
         }
       }
       console.log('[출석 종료 실패_관리자 아님]');
-      res.json({ result: false });
+      return res.json({ result: false, part: false });
     } catch (error) {
       console.log('[출석 종료 실패]', error);
-      return res.json({ result: false });
+      return res.json({ result: false, part: false });
     }
   },
   // 출결 수정
@@ -128,14 +135,14 @@ module.exports = {
       const userInfo = jwt.verify(userToken, process.env.JWT);
       if(userInfo.is_admin) {
         const attends = await attendModel.getSessionAttendAdmin(userInfo.level, session_id);
-        res.json({attends: attends});
+        return res.json({attends: attends});
       } else {
         console.log('[출석 정보 불러오기 실패]_관리자 권한 필요');
-        res.json({attends: false});
+        return res.json({attends: false});
       }
     } catch(error) {
       console.log('[출석 정보 불러오기 실패]', error);
-      res.json({attends: false});
+      return res.json({attends: false});
     }
   },
   getSessionAndAttend: async (req, res) => {
