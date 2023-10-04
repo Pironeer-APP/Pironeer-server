@@ -9,15 +9,15 @@ module.exports = {
           WHEN type = '지각' THEN -10000
           WHEN type = '보증금 방어권' THEN +10000
           WHEN type = '과제 미제출' THEN -20000
+          WHEN type = '과제 미흡' THEN -10000
           WHEN type = '과제 지각' THEN -10000
-          WHEN type = '과제 미제출' THEN -10000
         END AS price
       FROM (
         SELECT
           CASE
             WHEN grade = 0 THEN '과제 미제출'
-            WHEN grade = 1 THEN '과제 지각'
-            WHEN grade = 2 THEN '과제 미흡'
+            WHEN grade = 1 THEN '과제 미흡'
+            WHEN grade = 2 THEN '과제 지각'
           END AS type,
           created_at AS date,
           DATE_FORMAT(created_at, '%m.%d') AS monthDay
@@ -30,7 +30,7 @@ module.exports = {
         UNION 
         SELECT type, updated_at AS date, DATE_FORMAT(updated_at, '%m.%d') AS monthDay
         FROM Coupon
-        WHERE user_id=? AND is_used =?
+        WHERE user_id=? AND is_used =1
       ) AS B
       ORDER BY date;`;
     const historyList = await db.query(attendAndAssignQuery, [userInfo.user_id, userInfo.user_id, userInfo.user_id, 1]);
