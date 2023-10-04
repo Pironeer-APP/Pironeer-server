@@ -3,14 +3,26 @@ const jwt = require('jsonwebtoken');
 
 module.exports = {
   getDepositHistory: async (req, res) => {
-    const userInfo = req.body.userInfo;
-    const histories = await depositModel.getDepositHistory(userInfo);
-    res.json({histories: histories});
+    const userToken = req.body.userToken;
+    try {
+      const userInfo = jwt.verify(userToken, process.env.JWT);
+      const histories = await depositModel.getDepositHistory(userInfo);
+      console.log(histories);
+      res.json({histories: histories});
+    } catch(error) {
+      console.log(error);
+      res.json({histories: []});
+    }
   },
   getCoupons: async (req, res) => {
-    const userInfo = req.body.userInfo;
-    const couponInfo = await depositModel.getCoupons(userInfo);
-    res.json({couponInfo: couponInfo});
+    const userToken = req.body.userToken;
+    try {
+      const userInfo = jwt.verify(userToken, process.env.JWT);
+      const couponInfo = await depositModel.getCoupons(userInfo);
+      res.json({couponInfo: couponInfo});
+    } catch(error) {
+      res.json({couponInfo: []});
+    }
   },
   addCouponToUser: async (req, res) => {
     const couponData = req.body;

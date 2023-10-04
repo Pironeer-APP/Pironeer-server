@@ -9,5 +9,6 @@ router.post('/endAttend', attendController.endAttend);
 router.post('/updateAttend', attendController.updateAttend);
 router.post('/getSessionAttendAdmin', attendController.getSessionAttendAdmin);
 router.post('/getSessionAndAttend', attendController.getSessionAndAttend);
+router.post('/getCode', attendController.getCode);
 
 module.exports = router;

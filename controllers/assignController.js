@@ -39,12 +39,14 @@ module.exports = {
   readAssignDetail: async (req, res) => {
     // 특정 과제의 세부 사항 (기수 별 회원 목록, 그 회원의 과제 결과)
     // client: 클릭한 과제의 assignschedule_id
-    const { userToken, oneAssignscheduleId } = req.body;
-    
+    const { userToken, assignId } = req.body;
+    console.log(userToken, assignId);
+
     try {
         const userInfo = jwt.verify(userToken, process.env.JWT);
         if (userInfo.is_admin) {
-            const data = await assignModel.readAssignDetail(oneAssignscheduleId, userInfo.level);
+            const data = await assignModel.readAssignDetail(assignId, userInfo.level);
+            console.log(data);
             res.json({ data: data });
         }
     } catch (error) {
@@ -55,12 +57,12 @@ module.exports = {
   createAssign: async (req, res) => {
     // 관리할 기수의 과제 일정 create
     // client: inputTitle , inputDueDate
-    const { userToken, inputTitle, inputDueDate } = req.body;
-
+    const { userToken, title, dateData } = req.body;
+    console.log(title, dateData);
     try {
         const userInfo = jwt.verify(userToken, process.env.JWT);
         if (userInfo.is_admin) {
-            const data = await assignModel.createAssign(userInfo.level, inputTitle, inputDueDate);
+            const data = await assignModel.createAssign(userInfo.level, title, dateData);
             res.json({ data: data }); // data 꼭 넘겨줘야 하나?
         }
     } catch (error) {
@@ -71,14 +73,13 @@ module.exports = {
   updateAssign: async (req, res) => {
     // 관리할 기수의 과제 일정 update
     // client: update할 과제 일정의 assignschedule_id, newTitle, newDueDate
-    const { userToken, updateId, newTitle, newDueDate } = req.body;
+    const { userToken, assignId, title, formattedDate } = req.body;
 
     try {
         const userInfo = jwt.verify(userToken, process.env.JWT);
         if (userInfo.is_admin) {
-            const data = await assignModel.updatedAssign(userInfo.level, updateId, newTitle, newDueDate);
-            console.log("온 데이터: ", userInfo.level, updateId, newTitle, newDueDate);
-            res.json({ data: data });
+            await assignModel.updateAssign(userInfo.level, assignId, title, formattedDate);
+            res.json();
         }
     } catch (error) {
         console.log('updateAssign error', error);
@@ -102,7 +103,7 @@ module.exports = {
     }
   },
   createGrade: async (req, res) => {
-    // 특정 과제 일정 중 특정 회원의 과제 결과를 create/update
+    // 특정 과제 일정 중 특정 회원의 과제 결과를 create
     // client: 현재 들어온 페이지의 과제 일정 assignschedule_id, 선택한 회원의 user_id, 회원의 과제 결과 inputGrade
     const { userToken, assignScheduleId, userId, inputGrade } = req.body;
 
@@ -117,4 +118,42 @@ module.exports = {
         res.json({ data: false });
     }
   },
+  updateGrade: async (req, res) => {
+    // 특정 과제 일정 중 특정 회원의 과제 결과를 update
+    // client: 현재 들어온 페이지의 과제 일정 assignschedule_id, 선택한 회원의 user_id, 회원의 과제 결과 inputGrade
+    const { userToken, assignScheduleId, userId, updateGrade } = req.body;
+
+    try {
+        const userInfo = jwt.verify(userToken, process.env.JWT);
+        if (userInfo.is_admin) {
+            const data = await assignModel.updateGrade(assignScheduleId, userId, updateGrade);
+            res.json({ data: data });
+        }
+    } catch (error) {
+        console.log('updateGrade error', error);
+        res.json({ data: false });
+    }
+  },
+  getCurrentAssigns: async (req, res) => {
+    const {userToken} = req.body;
+    try {
+        const userInfo = jwt.verify(userToken, process.env.JWT);
+        const currentAssigns = await assignModel.getCurrentAssigns(userInfo.level);
+        res.json({currentAssign: currentAssigns[0], currentAssignCnt: currentAssigns.length});
+    } catch(error) {
+        console.log('[getCurrentAssigns error]', error);
+        res.json({currentAssign: false, currentAssignCnt: false});
+    }
+  },
+  getRecentAssign: async (req, res) => {
+    const {userToken} = req.body;
+    try {
+        const userInfo = jwt.verify(userToken, process.env.JWT);
+        const recentAssign = await assignModel.getRecentAssign(userInfo.level);
+        res.json({recentAssign: recentAssign});
+    } catch(error) {
+        console.log('[getRecentAssign error]', error);
+        res.json({recentAssign: false});
+    }
+  }
 };

@@ -30,9 +30,8 @@ module.exports = {
   readAssignAll: async (level) => {
     const query = `
         SELECT
-         ROW_NUMBER() OVER (ORDER BY AssignSchedule.due_date) AS NewAssignId,
-         title, assignschedule_id,
-         UPPER(DATE_FORMAT(due_date, "%m.%d %a")) AS dueDate
+         ROW_NUMBER() OVER (ORDER BY AssignSchedule.due_date DESC) AS NewAssignId,
+         title, assignschedule_id, due_date
         FROM
          AssignSchedule
         WHERE
@@ -40,27 +39,27 @@ module.exports = {
         `;
     const AllData = await db.query(query, [level]);
     const Data = AllData[0];
-    console.log("Data: ", Data);
+
     return Data;
   },
   readAssignDetail: async (id, level) => {
     const query = `
         SELECT
          ROW_NUMBER() OVER (ORDER BY User.name) AS studentId,
-         User.name, Assign.grade
+         User.name, User.user_id, Assign.grade
         FROM
          User
         LEFT JOIN
          Assign
         ON
-         Assign.user_id = User.user_id AND Assign.assignschedule_id = ?
+         (Assign.user_id = User.user_id AND Assign.assignschedule_id = ?) AND TRUE
         WHERE
          User.level = ?;
         `;
-    const AssignDetailData = db.query(query, [id, level]);
-    const Data = AssignDetailData[0];
+    const AssignDetailData = await db.query(query, [id, level]);
+    const resAssignDetailData = AssignDetailData[0];
 
-    return Data;
+    return resAssignDetailData;
   },
   createAssign: async (level, inputTitle, inputDueDate) => {
     const query = `
@@ -69,20 +68,7 @@ module.exports = {
         `;
     db.query(query, [level, inputTitle, inputDueDate]);
   },
-  updateAssign: async (level, updateId) => {
-    const query = `
-        SELECT
-         title, due_date
-        FROM
-         AssignSchedule
-        WHERE
-         level = ? AND assignschedule_id = ?;
-        `;
-    const Data = db.query(query, [level, updateId]);
-
-    return Data[0];
-  },
-  updatedAssign: async (level, updateId, newTitle, newDueDate) => {
+  updateAssign: async (level, updateId, newTitle, newDueDate) => {
     const query = `
         UPDATE
          AssignSchedule
@@ -91,7 +77,7 @@ module.exports = {
         WHERE
          assignschedule_id = ?;
         `;
-    db.query(query, [level, updateId, newTitle, newDueDate]);
+        await db.query(query, [level, newTitle, newDueDate, updateId]);
   },
   deleteAssign: async (level, deleteId) => {
     const query = `
@@ -100,27 +86,46 @@ module.exports = {
         WHERE
          level = ? AND assignschedule_id = ?;
         `;
-    db.query(query, [level, deleteId]);
+        await db.query(query, [level, deleteId]);
   },
-  readGrade: async (assignScheduleId, UserId) => {
+  createGrade: async (assignScheduleId, UserId, inputGrade) => {
     const query = `
-        SELECT
-         grade
-        FROM
+        INSERT INTO
+         Assign (user_id, grade, assignschedule_id)
+        VALUES (? , ? , ?);
+        `;
+        await db.query(query, [UserId, inputGrade, assignScheduleId]);
+  },
+  updateGrade: async (assignScheduleId, UserId, updateGrade) => {
+    const query = `
+        UPDATE
          Assign
+        SET
+         grade = ?
         WHERE
          assignschedule_id = ? AND user_id = ?;
         `;
-    const data = db.query(query, [assignScheduleId, UserId]);
-
-    return data[0];
+        await db.query(query, [updateGrade, assignScheduleId, UserId]);
   },
-  createGrade: async (assignScheduleId, UserId, inputGrade, inputReason) => {
+  getCurrentAssigns: async (level) => {
     const query = `
-        INSERT INTO
-         Assign (user_id, grade, reason, assignschedule_id)
-        VALUES (? , ? , ?, ?);
-        `;
-    db.query(query, [UserId, inputGrade, inputReason, assignScheduleId]);
+    SELECT *
+    FROM AssignSchedule
+    WHERE due_date >= CURDATE() AND level=?
+    ORDER BY due_date DESC;`;
+    const currentAssigns = await db.query(query, [level]);
+
+    return currentAssigns[0];
   },
+  getRecentAssign: async (level) => {
+    const query = `
+    SELECT *
+    FROM AssignSchedule
+    WHERE due_date < CURDATE() AND level=?
+    ORDER BY due_date DESC
+    LIMIT 1;`;
+    const recentAssign = await db.query(query, [level]);
+
+    return recentAssign[0][0];
+  }
 };
