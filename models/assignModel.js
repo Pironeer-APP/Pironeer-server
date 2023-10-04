@@ -12,7 +12,9 @@ module.exports = {
          CASE
             WHEN AssignSchedule.due_date < CURDATE() THEN TRUE
             ELSE FALSE
-         END AS done
+         END AS done,
+         AssignSchedule.created_at AS created_at,
+         AssignSchedule.due_date AS due_date
         FROM
          AssignSchedule
         LEFT JOIN
@@ -31,7 +33,8 @@ module.exports = {
     const query = `
         SELECT
          ROW_NUMBER() OVER (ORDER BY AssignSchedule.due_date DESC) AS NewAssignId,
-         title, assignschedule_id, due_date
+         title, assignschedule_id, due_date,
+         created_at
         FROM
          AssignSchedule
         WHERE
