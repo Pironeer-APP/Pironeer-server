@@ -1,5 +1,6 @@
 const assignModel = require("../models/assignModel.js");
 const jwt = require('jsonwebtoken');
+const userModel = require("../models/userModel.js");
 
 module.exports = {
 // userInfo data를 위해 client에서 userToken 전송
@@ -111,6 +112,18 @@ module.exports = {
         const userInfo = jwt.verify(userToken, process.env.JWT);
         if (userInfo.is_admin) {
             const data = await assignModel.createGrade(assignScheduleId, userId, inputGrade);
+            
+            // 보증금 금액을 변경하는 updateDeposit
+            switch (inputGrade) {
+                case 0:
+                    await userModel.updateDeposit(userId, -20000);
+                    break;
+                case 1:
+                case 2:
+                    await userModel.updateDeposit(userId, -10000);
+                    break;
+            }
+
             res.json({ data: data });
         }
     } catch (error) {
