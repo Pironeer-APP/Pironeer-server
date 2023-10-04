@@ -59,37 +59,39 @@ module.exports = {
       const userInfo = jwt.verify(userToken, process.env.JWT);
       const sessions = await sessionModel.getWeekSessions(userInfo.level);
 
-      const weekSessions = [[],[],[],[],[],[],[],[],[]];
-      let weekIdx = 0;
-      let standardYear = Number(sessions[0].year);
-      let standardMonth = Number(sessions[0].month);
-      let standardDate = Number(sessions[0].day);
-      weekSessions[0].push(sessions[0]);
-      for(let i = 1; i < sessions.length; i++) {
-        const month = Number(sessions[i].month);
-        const day = Number(sessions[i].day);
-        // 당월 7일 이내
-        if(standardMonth === month && standardDate+7 > day) {
-          weekSessions[weekIdx].push(sessions[i]);
-        } else if(standardMonth+1 === month) {
-          // 익월 7일 이내
-          const last = new Date(standardYear, standardMonth, 0);
-          const lastDay = last.getDate();
-          if(standardDate+7 > day+lastDay) {
+      const weekSessions = [];
+      if(sessions.length > 0) {
+        let weekIdx = 0;
+        let standardYear = Number(sessions[0].year);
+        let standardMonth = Number(sessions[0].month);
+        let standardDate = Number(sessions[0].day);
+        weekSessions.push([sessions[0]]); // 첫 번째 리스트 만들어 줌
+        for(let i = 1; i < sessions.length; i++) {
+          const month = Number(sessions[i].month);
+          const day = Number(sessions[i].day);
+          // 당월 7일 이내
+          if(standardMonth === month && standardDate+7 > day) {
             weekSessions[weekIdx].push(sessions[i]);
+          } else if(standardMonth+1 === month) {
+            // 익월 7일 이내
+            const last = new Date(standardYear, standardMonth, 0);
+            const lastDay = last.getDate();
+            if(standardDate+7 > day+lastDay) {
+              weekSessions[weekIdx].push(sessions[i]);
+            } else {
+              weekIdx += 1;
+              standardYear = Number(sessions[i].year);
+              standardMonth = Number(sessions[i].month);
+              standardDate = Number(sessions[i].day);
+              weekSessions.push([sessions[i]]); // 새로운 리스트 만들어 줌
+            }
           } else {
             weekIdx += 1;
             standardYear = Number(sessions[i].year);
             standardMonth = Number(sessions[i].month);
             standardDate = Number(sessions[i].day);
-            weekSessions[weekIdx].push(sessions[i]);
+            weekSessions.push([sessions[i]]); // 새로운 리스트 만들어 줌
           }
-        } else {
-          weekIdx += 1;
-          standardYear = Number(sessions[i].year);
-          standardMonth = Number(sessions[i].month);
-          standardDate = Number(sessions[i].day);
-          weekSessions[weekIdx].push(sessions[i]);
         }
       }
 

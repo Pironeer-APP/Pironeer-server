@@ -23,18 +23,24 @@ module.exports = {
     return result[0];
   },
   getSessionAttend: async (session_id) => {
-    // 조회 시 현재 세션에 해당하는 확정된 출결 가져오기
-    const query = 'SELECT * FROM Attend WHERE session_id=?;';
+    // 조회 시 현재 세션에 해당하는 오늘의 확정된 출결 가져오기
+    const query = 'SELECT * FROM Attend WHERE session_id=? AND DATE_FORMAT(created_at, "%Y-%m-%d")=CURDATE();';
 
     const attends = await db.query(query, [session_id]);
 
     return attends[0];
   },
   addFirstAttend: async (session_id) => {
-    // TempAttend에 없는 결석한 사람들 user_id 가져오기
-    const getAbsentUserId = 'SELECT user_id FROM User WHERE user_id NOT IN (SELECT user_id FROM TempAttend);';
-    // TempAttend에 있는 출석한 사람들 데이터 가져오기
-    const getTempAttend = 'SELECT * FROM TempAttend;';
+    // 오늘의 TempAttend에 없는 결석한 사람들 user_id 가져오기
+    const getAbsentUserId = `
+    SELECT user_id
+    FROM User
+    WHERE user_id NOT IN (
+      SELECT user_id
+      FROM TempAttend
+      WHERE DATE_FORMAT(created_at, "%Y-%m-%d")=CURDATE());`;
+    // 오늘의 TempAttend에 있는 출석한 사람들 데이터 가져오기
+    const getTempAttend = 'SELECT * FROM TempAttend WHERE DATE_FORMAT(created_at, "%Y-%m-%d")=CURDATE();';
 
     // Attend 테이블에 정보 복제
     const insertAttend = 'INSERT INTO Attend(user_id, session_id, type) VALUES(?, ?, ?);';
@@ -74,7 +80,7 @@ module.exports = {
     FROM Attend
     JOIN
     TempAttend
-    ON Attend.user_id=TempAttend.user_id
+    ON Attend.user_id=TempAttend.user_id AND DATE_FORMAT(Attend.created_at, "%Y-%m-%d")=CURDATE()
     WHERE session_id=?
     AND DATE_FORMAT(TempAttend.created_at, "%Y-%m-%d")=CURDATE();`;
     // Attend 테이블 update
@@ -95,6 +101,12 @@ module.exports = {
     } catch (error) {
       return false;
     }
+  },
+  getUserSessionAttend: async (user_id, session_id) => {
+    const query = 'SELECT * FROM Attend WHERE user_id=? AND session_id=?;';
+    const attend = await db.query(query, [user_id, session_id]);
+
+    return attend[0][0];
   },
   updateAttend: async (user_id, attendType, session_id) => {
     console.log(user_id, attendType, session_id);
@@ -163,5 +175,11 @@ module.exports = {
     const sessions = await db.query(query, [level, user_id]);
 
     return sessions[0];
+  },
+  getCode: async () => {
+    const query = 'SELECT * FROM Code WHERE DATE_FORMAT(created_at, "%Y-%m-%d")=CURDATE() ORDER BY created_at DESC LIMIT 1;';
+    const code = await db.query(query);
+
+    return code[0][0];
   }
 }
