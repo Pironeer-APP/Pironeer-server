@@ -10,6 +10,7 @@ module.exports = {
         WHEN type = '보증금 방어권' THEN +10000
         WHEN type = 0 THEN -20000
         WHEN type = 1 THEN -10000
+        WHEN type = 2 THEN -10000
       END AS price
     FROM (
       SELECT type, created_at as date, DATE_FORMAT(created_at, '%m.%d') AS monthDay
@@ -18,7 +19,7 @@ module.exports = {
       UNION
       SELECT grade AS type, created_at as date, DATE_FORMAT(created_at, '%m.%d') AS monthDay
       FROM Assign
-      WHERE user_id=?
+      WHERE user_id=? AND NOT grade =3 
       UNION 
       SELECT type, updated_at as date, DATE_FORMAT(updated_at,'%m.%d') AS monthDay
       FROM Coupon
