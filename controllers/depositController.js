@@ -7,6 +7,7 @@ module.exports = {
     try {
       const userInfo = jwt.verify(userToken, process.env.JWT);
       const histories = await depositModel.getDepositHistory(userInfo);
+      console.log(histories)
       res.json({histories: histories});
     } catch(error) {
       console.log(error);

@@ -2,22 +2,35 @@ const db = require('../config/db.js');
 
 module.exports = {
   getDepositHistory: async (userInfo) => {
-    const attendAndAssignQuery = `
+    const initializeBalanceQuery = `
+      SET @balance := 120000;
+    `;
+  
+    const selectHistoryQuery = `
       SELECT *, ROW_NUMBER() OVER (ORDER BY date) AS CNT,
         CASE
           WHEN type = '결석' THEN -20000        
           WHEN type = '지각' THEN -10000
-          WHEN type = '보증금 방어권' THEN +10000
-          WHEN type = '과제 미제출' THEN -20000
+          WHEN type = '보증금 방어권' THEN 10000
+          WHEN type = '과제 제출' THEN -20000
           WHEN type = '과제 미흡' THEN -10000
-          WHEN type = '과제 지각' THEN -10000
-        END AS price
+          WHEN type = '과제 미제출' THEN -10000
+        END AS price,
+        @balance := @balance + 
+        CASE
+          WHEN type = '결석' THEN -20000        
+          WHEN type = '지각' THEN -10000
+          WHEN type = '보증금 방어권' THEN +10000
+          WHEN type = '과제 제출' THEN -20000
+          WHEN type = '과제 미흡' THEN -10000
+          WHEN type = '과제 미제출' THEN -10000
+        END AS balance
       FROM (
         SELECT
           CASE
-            WHEN grade = 0 THEN '과제 미제출'
+            WHEN grade = 0 THEN '과제 제출'
             WHEN grade = 1 THEN '과제 미흡'
-            WHEN grade = 2 THEN '과제 지각'
+            WHEN grade = 2 THEN '과제 미제출'
           END AS type,
           created_at AS date,
           DATE_FORMAT(created_at, '%m.%d') AS monthDay
@@ -32,8 +45,14 @@ module.exports = {
         FROM Coupon
         WHERE user_id=? AND is_used =1
       ) AS B
-      ORDER BY date;`;
-    const historyList = await db.query(attendAndAssignQuery, [userInfo.user_id, userInfo.user_id, userInfo.user_id, 1]);
+      ORDER BY date;
+    `;
+  
+    // 잔액 초기화 쿼리 실행
+    await db.query(initializeBalanceQuery);
+  
+    // 잔액을 사용한 히스토리 쿼리 실행
+    const historyList = await db.query(selectHistoryQuery, [userInfo.user_id, userInfo.user_id, userInfo.user_id, 1]);
     return historyList[0];
   },
   getCoupons: async (userInfo) => {
