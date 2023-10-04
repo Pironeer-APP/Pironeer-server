@@ -11,7 +11,7 @@ module.exports = {
         CASE
           WHEN type = '결석' THEN -20000        
           WHEN type = '지각' THEN -10000
-          WHEN type = '보증금 방어권' THEN +10000
+          WHEN type = '보증금 방어권' THEN 10000
           WHEN type = '과제 제출' THEN -20000
           WHEN type = '과제 미흡' THEN -10000
           WHEN type = '과제 미제출' THEN -10000
@@ -53,8 +53,6 @@ module.exports = {
   
     // 잔액을 사용한 히스토리 쿼리 실행
     const historyList = await db.query(selectHistoryQuery, [userInfo.user_id, userInfo.user_id, userInfo.user_id, 1]);
-    console.log('adsfasdfalmd;dkamdk;fma;fdaklf')
-    console.log(historyList);
     return historyList[0];
   },
   getCoupons: async (userInfo) => {
