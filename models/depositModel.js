@@ -3,29 +3,36 @@ const db = require('../config/db.js');
 module.exports = {
   getDepositHistory: async (userInfo) => {
     const attendAndAssignQuery = `
-    SELECT *, ROW_NUMBER() OVER (ORDER BY date) AS CNT,
-      CASE
-        WHEN type = '결석' THEN -20000        
-        WHEN type = '지각' THEN -10000
-        WHEN type = '보증금 방어권' THEN +10000
-        WHEN type = 0 THEN -20000
-        WHEN type = 1 THEN -10000
-        WHEN type = 2 THEN -10000
-      END AS price
-    FROM (
-      SELECT type, created_at as date, DATE_FORMAT(created_at, '%m.%d') AS monthDay
-      FROM Attend
-      WHERE user_id=?
-      UNION
-      SELECT grade AS type, created_at as date, DATE_FORMAT(created_at, '%m.%d') AS monthDay
-      FROM Assign
-      WHERE user_id=? AND NOT grade =3 
-      UNION 
-      SELECT type, updated_at as date, DATE_FORMAT(updated_at,'%m.%d') AS monthDay
-      FROM Coupon
-      WHERE user_id=? AND is_used =?
-    ) AS B
-    ORDER BY date;`;
+      SELECT *, ROW_NUMBER() OVER (ORDER BY date) AS CNT,
+        CASE
+          WHEN type = '결석' THEN -20000        
+          WHEN type = '지각' THEN -10000
+          WHEN type = '보증금 방어권' THEN +10000
+          WHEN type = '과제 미제출' THEN -20000
+          WHEN type = '과제 지각' THEN -10000
+          WHEN type = '과제 미제출' THEN -10000
+        END AS price
+      FROM (
+        SELECT
+          CASE
+            WHEN grade = 0 THEN '과제 미제출'
+            WHEN grade = 1 THEN '과제 지각'
+            WHEN grade = 2 THEN '과제 미흡'
+          END AS type,
+          created_at AS date,
+          DATE_FORMAT(created_at, '%m.%d') AS monthDay
+        FROM Assign
+        WHERE user_id=? AND NOT grade = 3 
+        UNION 
+        SELECT type, created_at AS date, DATE_FORMAT(created_at, '%m.%d') AS monthDay
+        FROM Attend
+        WHERE user_id=?
+        UNION 
+        SELECT type, updated_at AS date, DATE_FORMAT(updated_at, '%m.%d') AS monthDay
+        FROM Coupon
+        WHERE user_id=? AND is_used =?
+      ) AS B
+      ORDER BY date;`;
     const historyList = await db.query(attendAndAssignQuery, [userInfo.user_id, userInfo.user_id, userInfo.user_id, 1]);
     return historyList[0];
   },
