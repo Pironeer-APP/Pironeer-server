@@ -52,6 +52,29 @@ module.exports = {
       return false;
     }
   },
+  useCoupon:  async (user_id) => {
+    const useCouponQuery = `UPDATE Coupon AS c1
+    SET is_used = 1
+    WHERE coupon_id = (
+        SELECT coupon_id
+        FROM (
+            SELECT coupon_id
+            FROM Coupon
+            WHERE user_id = ?
+            AND is_used = 0
+            ORDER BY updated_at
+            LIMIT 1
+        ) AS c2
+    );`;
+    await db.query(useCouponQuery,[user_id]);
+    const updateDepositQuery = `UPDATE User SET 
+    deposit = deposit + 10000 WHERE user_id = ?`;
+    await db.query(updateDepositQuery, [user_id]);
+    const check = `SELECT * FROM User WHERE user_id = 44`;
+    // const user = await db.query(check);
+    // console.log('asdfasdf')
+    // console.log(user[0][0].deposit);
+  },
   updateExcessCoupon: async (user_id, cnt) => {
     const query = `
     UPDATE Coupon
