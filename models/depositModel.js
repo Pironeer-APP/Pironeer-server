@@ -51,5 +51,26 @@ module.exports = {
       console.log(error);
       return false;
     }
+  },
+  updateExcessCoupon: async (user_id, cnt) => {
+    const query = `
+    UPDATE Coupon
+    SET is_used=0
+    WHERE coupon_id IN (
+      SELECT * FROM (
+        SELECT coupon_id
+        FROM Coupon
+        WHERE user_id=? AND is_used=1
+        ORDER BY updated_at
+        LIMIT ?
+      ) AS t
+    );`;
+    try {
+      await db.query(query, [user_id, cnt]);
+      return true;
+    } catch(error) {
+      console.log('[보증금 방어권 사용 취소 실패]', error);
+      return false;
+    }
   }
 }

@@ -102,6 +102,12 @@ module.exports = {
       return false;
     }
   },
+  getUserSessionAttend: async (user_id, session_id) => {
+    const query = 'SELECT * FROM Attend WHERE user_id=? AND session_id=?;';
+    const attend = await db.query(query, [user_id, session_id]);
+
+    return attend[0][0];
+  },
   updateAttend: async (user_id, attendType, session_id) => {
     console.log(user_id, attendType, session_id);
     const query = 'UPDATE Attend SET type=? WHERE user_id=? AND session_id=?;';

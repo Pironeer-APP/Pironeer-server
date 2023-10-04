@@ -18,5 +18,14 @@ module.exports = {
     const userInfo = await db.query(query, [phone]);
 
     return userInfo[0][0];
+  },
+  updateDeposit: async (user_id, adder) => {
+    const query = `
+    UPDATE User
+    SET deposit=deposit + ?
+    WHERE user_id=?;`;
+    const result = await db.query(query, [adder, user_id]);
+
+    return result[0];
   }
 }
