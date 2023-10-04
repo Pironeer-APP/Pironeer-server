@@ -169,5 +169,11 @@ module.exports = {
     const sessions = await db.query(query, [level, user_id]);
 
     return sessions[0];
+  },
+  getCode: async () => {
+    const query = 'SELECT * FROM Code WHERE DATE_FORMAT(created_at, "%Y-%m-%d")=CURDATE() ORDER BY created_at DESC LIMIT 1;';
+    const code = await db.query(query);
+
+    return code[0][0];
   }
 }

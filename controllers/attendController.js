@@ -150,13 +150,29 @@ module.exports = {
     try {
       const userInfo = jwt.verify(userToken, process.env.JWT);
       const sessions = await attendModel.getSessionAndAttend(userInfo.user_id, userInfo.level);
-
+      
       const nextSessionIdx = getNextScheduleIdx.getNextScheduleIdx(sessions);
 
       res.json({sessions: sessions, nextSessionIdx: nextSessionIdx});
     } catch(error) {
       console.log(error);
       res.json({sessions: false});
+    }
+  },
+  // 오늘 출석 코드, 코드 생성 시간 가져오기
+  getCode: async (req, res) => {
+    const userToken = req.body.userToken;
+    try {
+      const userInfo = jwt.verify(userToken, process.env.JWT);
+      if(userInfo.is_admin) {
+        const code = await attendModel.getCode();
+        return res.json({code: code});
+      }
+      console.log('[출석 코드 조회 실패]_관리자 권한 필요');
+      return res.json({code: false});
+    } catch(error) {
+      console.log('[출석 코드 조회 실패]', error);
+      return res.json({code: false});
     }
   }
 }
