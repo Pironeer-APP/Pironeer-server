@@ -43,7 +43,7 @@ module.exports = {
         UNION 
         SELECT type, updated_at AS date, DATE_FORMAT(updated_at, '%m.%d') AS monthDay
         FROM Coupon
-        WHERE user_id=? AND is_used =?
+        WHERE user_id=? AND is_used =1
       ) AS B
       ORDER BY date;
     `;
