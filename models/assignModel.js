@@ -130,5 +130,19 @@ module.exports = {
     const recentAssign = await db.query(query, [level]);
 
     return recentAssign[0][0];
+  },
+  getCurrentAssignGrade: async (assignScheduleId, userId) => {
+    const query =`
+    SELECT
+     grade
+    FROM
+     Assign
+    WHERE
+     assignschedule_id = ? AND user_id = ?;
+    `
+    const currentGrade = await db.query(query, [assignScheduleId, userId]);
+    const currentGradeValue = currentGrade[0][0];
+
+    return currentGradeValue.grade;
   }
 };

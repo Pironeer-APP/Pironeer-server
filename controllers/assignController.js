@@ -47,7 +47,7 @@ module.exports = {
         const userInfo = jwt.verify(userToken, process.env.JWT);
         if (userInfo.is_admin) {
             const data = await assignModel.readAssignDetail(assignId, userInfo.level);
-            console.log(data);
+            // console.log(data);
             res.json({ data: data });
         }
     } catch (error) {
@@ -139,7 +139,47 @@ module.exports = {
     try {
         const userInfo = jwt.verify(userToken, process.env.JWT);
         if (userInfo.is_admin) {
+            // 현재 user의 grade 불러오기
+            const curGrade = await assignModel.getCurrentAssignGrade(assignScheduleId, userId);
+
+            // 1. curGrade에 따라
+            // switch (curGrade) {
+            //     case 0:
+            //         if (updateGrade === 1 || updateGrade === 2)
+            //             await userModel.updateDeposit(userId, 10000);
+            //         else if (updateGrade === 3)
+            //             await userModel.updateDeposit(userId, 20000);
+            //         break;
+            //     case 1:
+            //     case 2:
+            //         if (updateGrade === 0)
+            //             await userModel.updateDeposit(userId, -10000);
+            //         else if (updateGrade === 3)
+            //             await userModel.updateDeposit(userId, 10000);
+            //         break;
+            //     case 3:
+            //         if (updateGrade === 0)
+            //             await userModel.updateDeposit(userId, -20000);
+            //         else if (updateGrade === 1 || updateGrade === 2)
+            //             await userModel.updateDeposit(userId, -10000);
+            //         break;
+            // }
+
+            // console.log('curGrade:', curGrade, 'updateGrade:', updateGrade);
+
+            // 2. 수행할 작업의 종류에 따라
+            if (curGrade === 3 && updateGrade === 0)
+                await userModel.updateDeposit(userId, -20000);
+            else if (((curGrade === 1 || curGrade === 2) && updateGrade === 0) || (curGrade === 3 && (updateGrade === 1 || updateGrade === 2)))
+                await userModel.updateDeposit(userId, -10000);
+            else if (((curGrade === 1 || curGrade === 2) && updateGrade === 3) || (curGrade === 0 && (updateGrade === 1 || updateGrade === 2)))
+                await userModel.updateDeposit(userId, 10000);
+            else if (curGrade === 0 && updateGrade === 3)
+                await userModel.updateDeposit(userId, 20000);
+
+            // grade update
             const data = await assignModel.updateGrade(assignScheduleId, userId, updateGrade);
+
             res.json({ data: data });
         }
     } catch (error) {
