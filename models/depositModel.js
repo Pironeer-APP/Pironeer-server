@@ -96,3 +96,4 @@ module.exports = {
       return false;
     }
   }
+}
