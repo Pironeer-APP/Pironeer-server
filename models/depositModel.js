@@ -12,25 +12,25 @@ module.exports = {
           WHEN type = '결석' THEN -20000        
           WHEN type = '지각' THEN -10000
           WHEN type = '보증금 방어권' THEN 10000
-          WHEN type = '과제 제출' THEN -20000
+          WHEN type = '과제 미제출' THEN -20000
           WHEN type = '과제 미흡' THEN -10000
-          WHEN type = '과제 미제출' THEN -10000
+          WHEN type = '과제 지각' THEN -10000
         END AS price,
         @balance := @balance + 
         CASE
           WHEN type = '결석' THEN -20000        
           WHEN type = '지각' THEN -10000
           WHEN type = '보증금 방어권' THEN +10000
-          WHEN type = '과제 제출' THEN -20000
+          WHEN type = '과제 미제출' THEN -20000
           WHEN type = '과제 미흡' THEN -10000
-          WHEN type = '과제 미제출' THEN -10000
+          WHEN type = '과제 지각' THEN -10000
         END AS balance
       FROM (
         SELECT
           CASE
-            WHEN grade = 0 THEN '과제 제출'
+            WHEN grade = 0 THEN '과제 미제출'
             WHEN grade = 1 THEN '과제 미흡'
-            WHEN grade = 2 THEN '과제 미제출'
+            WHEN grade = 2 THEN '과제 지각'
           END AS type,
           created_at AS date,
           DATE_FORMAT(created_at, '%m.%d') AS monthDay
