@@ -1,6 +1,7 @@
 const assignModel = require("../models/assignModel.js");
 const jwt = require('jsonwebtoken');
 const userModel = require("../models/userModel.js");
+const depositModel = require("../models/depositModel.js");
 
 module.exports = {
 // userInfo data를 위해 client에서 userToken 전송
@@ -172,11 +173,37 @@ module.exports = {
                 await userModel.updateDeposit(userId, -20000);
             else if (((curGrade === 1 || curGrade === 2) && updateGrade === 0) || (curGrade === 3 && (updateGrade === 1 || updateGrade === 2)))
                 await userModel.updateDeposit(userId, -10000);
-            else if (((curGrade === 1 || curGrade === 2) && updateGrade === 3) || (curGrade === 0 && (updateGrade === 1 || updateGrade === 2)))
+            else if (((curGrade === 1 || curGrade === 2) && updateGrade === 3) || (curGrade === 0 && (updateGrade === 1 || updateGrade === 2))) {
                 await userModel.updateDeposit(userId, 10000);
-            else if (curGrade === 0 && updateGrade === 3)
+
+                // 이미 쿠폰을 사용하여 보증금이 13만원이거나 14만원일 경우
+                const user = await userModel.getOneUserInfo(userId);
+                const newDeposit = user.deposit;
+                console.log(newDeposit);
+                if (newDeposit === 130000) {
+                    // 가장 최근 사용된 쿠폰 n개를 사용 취소 (SET is_used=0, deposit -10000*n)
+                    await depositModel.updateExcessCoupon(userId, 1);
+                    await userModel.updateDeposit(userId, -10000);
+                } else if (newDeposit === 14000) {
+                    await depositModel.updateExcessCoupon(userId, 2);
+                    await userModel.updateDeposit(userId, -20000);
+                }
+            }
+            else if (curGrade === 0 && updateGrade === 3) {
                 await userModel.updateDeposit(userId, 20000);
 
+                const user = await userModel.getOneUserInfo(userId);
+                const newDeposit = user.deposit;
+                console.log(newDeposit);
+                if (newDeposit === 130000) {
+                    await depositModel.updateExcessCoupon(userId, 1);
+                    await userModel.updateDeposit(userId, -10000);
+                } else if (newDeposit === 14000) {
+                    await depositModel.updateExcessCoupon(userId, 2);
+                    await userModel.updateDeposit(userId, -20000);
+                }
+            }
+                
             // grade update
             const data = await assignModel.updateGrade(assignScheduleId, userId, updateGrade);
 
