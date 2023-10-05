@@ -31,6 +31,8 @@ module.exports = {
         .catch((error) => {
           console.log('Error sending message:', error);
         });
+    } else {
+      res.json({});
     }
   },
   saveToken: async (req, res) => {
