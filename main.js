@@ -24,7 +24,7 @@ app.use(bodyParser.json());
 
 const admin = require("firebase-admin");
 
-const serviceAccount = require("./pirogramming-97844-firebase-adminsdk-3ythh-b1b45d36a2.json");
+const serviceAccount = require("./pirogramming-97844-firebase-adminsdk-3ythh-7ba350c3e0.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
