@@ -22,6 +22,14 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
 app.use(bodyParser.json());
 
+const admin = require("firebase-admin");
+
+const serviceAccount = require("./pirogramming-97844-firebase-adminsdk-3ythh-b1b45d36a2.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
 const authRouter = require('./routers/authRouter.js');
 const adminRouter = require('./routers/adminRouter.js');
 const assignRouter = require('./routers/assignRouter.js');
@@ -30,6 +38,7 @@ const depositRouter = require('./routers/depositRouter.js');
 const userRouter = require('./routers/userRouter.js');
 const sessionRouter = require('./routers/sessionRouter.js');
 const attendRouter = require('./routers/attendRouter.js');
+const fcmRouter = require('./routers/fcmRouter.js');
 
 app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
@@ -39,6 +48,8 @@ app.use('/api/deposit', depositRouter);
 app.use('/api/user', userRouter);
 app.use('/api/session', sessionRouter);
 app.use('/api/attend', attendRouter);
+// 알림
+app.use('/api/fcm', fcmRouter);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

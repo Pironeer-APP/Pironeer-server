@@ -4,6 +4,7 @@ const db = require("../config/db.js");
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const secret_key = process.env.JWT;
+const { initializeApp } = require('firebase-admin/app');
 
 module.exports = {
   getPosts: async (req, res) => {
