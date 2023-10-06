@@ -111,7 +111,7 @@ module.exports = {
     SELECT *
     FROM AssignSchedule
     WHERE due_date >= CURDATE() AND level=?
-    ORDER BY due_date DESC;`;
+    ORDER BY due_date;`;
     const currentAssigns = await db.query(query, [level]);
 
     return currentAssigns[0];
