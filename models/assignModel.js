@@ -32,7 +32,7 @@ module.exports = {
   readAssignAll: async (level) => {
     const query = `
         SELECT
-         ROW_NUMBER() OVER (ORDER BY AssignSchedule.due_date DESC) AS NewAssignId,
+         ROW_NUMBER() OVER (ORDER BY AssignSchedule.created_at DESC) AS NewAssignId,
          title, assignschedule_id, due_date,
          created_at
         FROM
