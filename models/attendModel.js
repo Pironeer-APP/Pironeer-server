@@ -24,7 +24,7 @@ module.exports = {
   },
   getSessionAttend: async (session_id) => {
     // 조회 시 현재 세션에 해당하는 오늘의 확정된 출결 가져오기
-    const query = 'SELECT * FROM Attend WHERE session_id=? AND DATE_FORMAT(created_at, "%Y-%m-%d")=CURDATE();';
+    const query = 'SELECT * FROM Attend WHERE session_id=?;';
 
     const attends = await db.query(query, [session_id]);
 
@@ -38,7 +38,8 @@ module.exports = {
     WHERE user_id NOT IN (
       SELECT user_id
       FROM TempAttend
-      WHERE DATE_FORMAT(created_at, "%Y-%m-%d")=CURDATE());`;
+      WHERE DATE_FORMAT(created_at, "%Y-%m-%d")=CURDATE())
+      AND is_admin=0;`;
     // 오늘의 TempAttend에 있는 출석한 사람들 데이터 가져오기
     const getTempAttend = 'SELECT * FROM TempAttend WHERE DATE_FORMAT(created_at, "%Y-%m-%d")=CURDATE();';
 
@@ -64,6 +65,24 @@ module.exports = {
     }
   },
   addNextAttend: async (session_id, part) => {
+    // 오늘의 TempAttend에 없는 결석한 사람들 user_id 가져오기
+    const getAbsentUserId = `
+    SELECT user_id
+    FROM User
+    WHERE user_id NOT IN (
+      SELECT user_id
+      FROM TempAttend
+      WHERE DATE_FORMAT(created_at, "%Y-%m-%d")=CURDATE())
+      AND is_admin=0;`;
+    
+    const absentUserIdList = await db.query(getAbsentUserId);
+
+    const insertTempAttend = 'INSERT INTO TempAttend(user_id, type) VALUES(?, ?);';
+    
+    for (let absentUserId of absentUserIdList[0]) {
+      console.log(absentUserId);
+      await db.query(insertTempAttend, [absentUserId.user_id, '결석']);
+    }
     // 두 번째와 세 번째 함수의 차이점이 크지 않아 하나로 합침
     const standard = {
       attend_type2: part === 2 ? '결석' : '지각',
@@ -97,6 +116,7 @@ module.exports = {
     try {
       const result = await db.query(query, [session_id]);
       for (let attendInfo of result[0]) {
+        console.log(attendInfo);
         await db.query(updateAttend, [attendInfo.final_attend, attendInfo.user_id, session_id]);
       }
       await db.query(clearTempAttend);
