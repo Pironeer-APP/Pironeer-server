@@ -50,9 +50,9 @@ module.exports = {
     
     return sessions[0];
   },
-  getTodaySession: async () => {
-    const query = 'SELECT * FROM Session WHERE DATE_FORMAT(date, "%Y-%m-%d")=CURDATE();';
-    const session = await db.query(query);
+  getTodaySession: async (session_id) => {
+    const query = 'SELECT * FROM Session WHERE session_id=?;';
+    const session = await db.query(query, [session_id]);
 
     return session[0][0];
   }

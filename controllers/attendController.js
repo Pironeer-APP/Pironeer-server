@@ -58,25 +58,25 @@ module.exports = {
   // 출결 저장 버튼을 눌렀을 때
   confirmAttend: async (req, res) => {
     const userToken = req.body.token;
+    const session_id = req.body.session_id;
     try {
       const decoded = jwt.verify(userToken, process.env.JWT);
       const userInfo = await userModel.getOneUserInfo(decoded.user_id);
       const is_admin = userInfo.is_admin;
       
-      const todaySession = sessionModel.getTodaySession();
-
       if (is_admin) {
         try {
-          const attends = await attendModel.getSessionAttend(todaySession.session_id);
+          const attends = await attendModel.getSessionAttend(session_id);
+          console.log(attends);
           let result;
           let part;
           // 첫 번째 출결: 오늘 날짜의 Attend 테이블 데이터가 없음
-          if (attends) {
-            result = await attendModel.addFirstAttend(todaySession.session_id);
-            part = 1;
+          if (attends.length <= 0) {
+            result = await attendModel.addFirstAttend(session_id);
+            part = 2;
             // 보증금에 결과 반영
             // attend 데이터 다시 조회, 결석이면 -2만
-            const newAttends = await attendModel.getSessionAttend(todaySession.session_id);
+            const newAttends = await attendModel.getSessionAttend(session_id);
             newAttends.forEach(async (attend) => {
               if(attend.type === '결석')
                 await userModel.updateDeposit(attend.user_id, -20000);
@@ -89,11 +89,11 @@ module.exports = {
               if(attend.type === '결석')
                 await userModel.updateDeposit(attend.user_id, 20000);
             });
-            result = await attendModel.addNextAttend(todaySession.session_id, 2);
-            part = 2;
+            result = await attendModel.addNextAttend(session_id, 2);
+            part = 3;
             // 보증금에 결과 재반영
             // attend 데이터 다시 조회, 결석이면 -2만 지각이면 -1만
-            const newAttends = await attendModel.getSessionAttend(todaySession.session_id);
+            const newAttends = await attendModel.getSessionAttend(session_id);
             newAttends.forEach(async (attend) => {
               if(attend.type === '결석')
                 await userModel.updateDeposit(attend.user_id, -20000);
@@ -124,17 +124,18 @@ module.exports = {
   // 출결 종료 버튼을 눌렀을 때
   endAttend: async (req, res) => {
     const userToken = req.body.token;
+    const session_id = req.body.session_id;
     try {
       const userInfo = jwt.verify(userToken, process.env.JWT);
       const is_admin = userInfo.is_admin;
 
-      const todaySession = sessionModel.getTodaySession();
+      const todaySession = sessionModel.getTodaySession(session_id);
       
       if (is_admin) {
 
         const attends = await attendModel.getSessionAttend(todaySession.session_id);
 
-        if (attends) {
+        if (attends.length > 0) {
           try {
             // 세 번째 출결
             // 보증금에 결과 반영 먼저
@@ -146,7 +147,7 @@ module.exports = {
                 await userModel.updateDeposit(attend.user_id, 10000);
             });
             const result = await attendModel.addNextAttend(todaySession.session_id, 3);
-            const part = 3;
+            const part = 4;
             // 보증금에 결과 재반영
             // attend 데이터 다시 조회, 결석이면 -2만 지각이면 -1만
             const newAttends = await attendModel.getSessionAttend(todaySession.session_id);
