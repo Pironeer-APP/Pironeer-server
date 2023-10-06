@@ -7,7 +7,7 @@ module.exports = {
     `;
   
     const selectHistoryQuery = `
-      SELECT *, ROW_NUMBER() OVER (ORDER BY date DESC) AS CNT,
+      SELECT *, ROW_NUMBER() OVER (ORDER BY date) AS CNT,
         CASE
           WHEN type = '결석' THEN -20000        
           WHEN type = '지각' THEN -10000
@@ -45,7 +45,6 @@ module.exports = {
         FROM Coupon
         WHERE user_id=? AND is_used =1
       ) AS B
-      ORDER BY date DESC;
     `;
   
     // 잔액 초기화 쿼리 실행
@@ -53,6 +52,7 @@ module.exports = {
   
     // 잔액을 사용한 히스토리 쿼리 실행
     const historyList = await db.query(selectHistoryQuery, [userInfo.user_id, userInfo.user_id, userInfo.user_id, 1]);
+    historyList[0].reverse();
     return historyList[0];
   },
   getCoupons: async (userInfo) => {
