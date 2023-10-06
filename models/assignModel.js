@@ -16,9 +16,9 @@ module.exports = {
         LEFT JOIN
          Assign
         ON
-         AssignSchedule.assignschedule_id = Assign.assignschedule_id AND Assign.user_id = 36
+         AssignSchedule.assignschedule_id = Assign.assignschedule_id AND Assign.user_id = ?
         WHERE
-         AssignSchedule.level = 20;
+         AssignSchedule.level = ?;
         `;
     const AssignData = await db.query(query, [curUserId, curUserLevel]);
     const Assign = AssignData[0];
