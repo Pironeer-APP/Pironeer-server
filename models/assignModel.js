@@ -53,7 +53,7 @@ module.exports = {
         ON
          (Assign.user_id = User.user_id AND Assign.assignschedule_id = ?) AND TRUE
         WHERE
-         User.level = ?;
+         User.level = ? AND User.is_admin = 0;
         `;
     const AssignDetailData = await db.query(query, [id, level]);
     const resAssignDetailData = AssignDetailData[0];
