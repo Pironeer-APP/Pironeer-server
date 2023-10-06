@@ -7,8 +7,8 @@ module.exports = {
     console.log(requestUser);
     try {
       const decoded = jwt.verify(requestUser, process.env.JWT);
-      console.log(decoded);
-      res.json({oneUserInfo: decoded});
+      const userInfo = await userModel.getOneUserInfo(decoded.user_id);
+      res.json({oneUserInfo: userInfo});
     } catch(error) {
       res.json(null);
     }
