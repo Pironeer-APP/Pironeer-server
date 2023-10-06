@@ -12,25 +12,25 @@ module.exports = {
           WHEN type = '결석' THEN -20000        
           WHEN type = '지각' THEN -10000
           WHEN type = '보증금 방어권' THEN 10000
-          WHEN type = '과제 제출' THEN -20000
+          WHEN type = '과제 미제출' THEN -20000
           WHEN type = '과제 미흡' THEN -10000
-          WHEN type = '과제 미제출' THEN -10000
+          WHEN type = '과제 지각' THEN -10000
         END AS price,
         @balance := @balance + 
         CASE
           WHEN type = '결석' THEN -20000        
           WHEN type = '지각' THEN -10000
           WHEN type = '보증금 방어권' THEN +10000
-          WHEN type = '과제 제출' THEN -20000
+          WHEN type = '과제 미제출' THEN -20000
           WHEN type = '과제 미흡' THEN -10000
-          WHEN type = '과제 미제출' THEN -10000
+          WHEN type = '과제 지각' THEN -10000
         END AS balance
       FROM (
         SELECT
           CASE
-            WHEN grade = 0 THEN '과제 제출'
+            WHEN grade = 0 THEN '과제 미제출'
             WHEN grade = 1 THEN '과제 미흡'
-            WHEN grade = 2 THEN '과제 미제출'
+            WHEN grade = 2 THEN '과제 지각'
           END AS type,
           created_at AS date,
           DATE_FORMAT(created_at, '%m.%d') AS monthDay
@@ -45,7 +45,6 @@ module.exports = {
         FROM Coupon
         WHERE user_id=? AND is_used =1
       ) AS B
-      ORDER BY date;
     `;
   
     // 잔액 초기화 쿼리 실행
@@ -53,6 +52,7 @@ module.exports = {
   
     // 잔액을 사용한 히스토리 쿼리 실행
     const historyList = await db.query(selectHistoryQuery, [userInfo.user_id, userInfo.user_id, userInfo.user_id, 1]);
+    historyList[0].reverse();
     return historyList[0];
   },
   getCoupons: async (userInfo) => {
@@ -69,10 +69,13 @@ module.exports = {
     
     return result[0];
   },
-  deleteCoupon: async (coupon_id) => {
-    const query = 'DELETE FROM Coupon WHERE coupon_id=?;';
+  deleteCoupon: async (user_id) => {
+    const query = `DELETE FROM Coupon
+      WHERE user_id=? AND is_used=0
+      ORDER BY updated_at DESC
+      LIMIT 1;`;
     try {
-      await db.query(query, [coupon_id]);
+      await db.query(query, [user_id]);
       return true;
     } catch(error) {
       console.log(error);
