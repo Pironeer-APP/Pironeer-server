@@ -27,12 +27,12 @@ module.exports = {
       if (account) {
         await authModel.findAccount(phone, newPassword);
         const result = await mailer(account.email, account.name, phone, newPassword);
-        res.json({result: result});
+        res.json({result: '비밀번호 변경 완료'});
       } else {
-        res.json({ result: false });
+        res.json({ result: '계정 정보 없음' });
       }
     } catch (error) {
-      res.json({ result: false });
+      res.json({ result: '서버 오류' });
     }
   },
   addUser: async (req, res) => {
