@@ -4,15 +4,11 @@ module.exports = {
   showAssign: async (curUserLevel, curUserId) => {
     const query = `
         SELECT
-         ROW_NUMBER() OVER (ORDER BY AssignSchedule.due_date DESC) AS AssignId,
+         ROW_NUMBER() OVER (ORDER BY AssignSchedule.created_at DESC) AS AssignId,
          AssignSchedule.title,
          DATE_FORMAT(AssignSchedule.due_date, "%m.%d") AS dueDate,
          UPPER(DATE_FORMAT(AssignSchedule.created_at, "%m.%d %a")) AS createdDate,
          Assign.grade,
-         CASE
-            WHEN AssignSchedule.due_date < CURDATE() THEN TRUE
-            ELSE FALSE
-         END AS done,
          AssignSchedule.created_at AS created_at,
          AssignSchedule.due_date AS due_date
         FROM
@@ -20,9 +16,9 @@ module.exports = {
         LEFT JOIN
          Assign
         ON
-         AssignSchedule.assignschedule_id = Assign.assignschedule_id AND Assign.user_id = ?
+         AssignSchedule.assignschedule_id = Assign.assignschedule_id AND Assign.user_id = 36
         WHERE
-         AssignSchedule.level = ?;
+         AssignSchedule.level = 20;
         `;
     const AssignData = await db.query(query, [curUserId, curUserLevel]);
     const Assign = AssignData[0];
@@ -32,7 +28,7 @@ module.exports = {
   readAssignAll: async (level) => {
     const query = `
         SELECT
-         ROW_NUMBER() OVER (ORDER BY AssignSchedule.due_date DESC) AS NewAssignId,
+         ROW_NUMBER() OVER (ORDER BY AssignSchedule.created_at DESC) AS NewAssignId,
          title, assignschedule_id, due_date,
          created_at
         FROM
