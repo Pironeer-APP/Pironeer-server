@@ -14,10 +14,30 @@ module.exports = {
       res.json({histories: []});
     }
   },
+  getDepositHistoryAdmin: async (req, res) => {
+    const userInfo = req.body.userInfo;
+    try {
+      const histories = await depositModel.getDepositHistory(userInfo);
+      console.log(histories)
+      res.json({histories: histories});
+    } catch(error) {
+      console.log(error);
+      res.json({histories: []});
+    }
+  },
   getCoupons: async (req, res) => {
     const userToken = req.body.userToken;
     try {
       const userInfo = jwt.verify(userToken, process.env.JWT);
+      const couponInfo = await depositModel.getCoupons(userInfo);
+      res.json({couponInfo: couponInfo});
+    } catch(error) {
+      res.json({couponInfo: []});
+    }
+  },
+  getCouponsAdmin: async (req, res) => {
+    const userInfo = req.body.userInfo;
+    try {
       const couponInfo = await depositModel.getCoupons(userInfo);
       res.json({couponInfo: couponInfo});
     } catch(error) {
