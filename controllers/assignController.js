@@ -194,7 +194,7 @@ module.exports = {
                     // 가장 최근 사용된 쿠폰 n개를 사용 취소 (SET is_used=0, deposit -10000*n)
                     await depositModel.updateExcessCoupon(userId, 1);
                     await userModel.updateDeposit(userId, -10000);
-                } else if (newDeposit === 14000) {
+                } else if (newDeposit === 140000) {
                     await depositModel.updateExcessCoupon(userId, 2);
                     await userModel.updateDeposit(userId, -20000);
                 }
@@ -208,7 +208,7 @@ module.exports = {
                 if (newDeposit === 130000) {
                     await depositModel.updateExcessCoupon(userId, 1);
                     await userModel.updateDeposit(userId, -10000);
-                } else if (newDeposit === 14000) {
+                } else if (newDeposit === 140000) {
                     await depositModel.updateExcessCoupon(userId, 2);
                     await userModel.updateDeposit(userId, -20000);
                 }
