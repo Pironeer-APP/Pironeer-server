@@ -27,7 +27,7 @@ module.exports = {
       if (account) {
         await authModel.findAccount(phone, newPassword);
         const result = await mailer(account.email, account.name, phone, newPassword);
-        res.json(result);
+        res.json({result: result});
       } else {
         res.json({ result: false });
       }

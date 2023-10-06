@@ -168,6 +168,16 @@ module.exports = {
 
             // console.log('curGrade:', curGrade, 'updateGrade:', updateGrade);
 
+            // 채점 전 상태 추가! 따로 분리
+            if (curGrade === 4 && updateGrade === 0)
+                await userModel.updateDeposit(userId, -20000);
+            else if (curGrade === 4 && (updateGrade === 1 || updateGrade === 2))
+                await userModel.updateDeposit(userId, -10000);
+            else if (curGrade === 0 && updateGrade === 4)
+                await userModel.updateDeposit(userId, 20000);
+            else if ((curGrade === 1 || curGrade === 2) && updateGrade === 4)
+                await userModel.updateDeposit(userId, 10000);
+
             // 2. 수행할 작업의 종류에 따라
             if (curGrade === 3 && updateGrade === 0)
                 await userModel.updateDeposit(userId, -20000);
