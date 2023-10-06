@@ -50,14 +50,17 @@ module.exports = {
 
     try {
       for (let tempAttend of tempAttendList[0]) {
+        console.log(tempAttend);
         await db.query(insertAttend, [tempAttend.user_id, session_id, '출석']);
       }
       for (let absentUserId of absentUserIdList[0]) {
+        console.log(absentUserId);
         await db.query(insertAttend, [absentUserId.user_id, session_id, '결석']);
       }
       return true;
     } catch (error) {
-      return error;
+      console.log(error);
+      return false;
     }
   },
   addNextAttend: async (session_id, part) => {

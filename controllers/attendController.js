@@ -39,7 +39,7 @@ module.exports = {
       try {
         const code = await attendModel.getCode();
         // 생성된 코드가 있고, 코드와 입력된 코드가 같으면 출석
-        if (code && code === input_code) {
+        if (code.code && code.code == input_code) {
           const result = await attendModel.addTempAttend(user_id, '출석');
           console.log('[출석 성공]', userInfo.name, '출석');
           return res.json({ result: result });
@@ -256,9 +256,11 @@ module.exports = {
       
       const nextSessionIdx = getNextScheduleIdx.getNextScheduleIdx(sessions);
 
+      console.log('[세션 정보와 출결 가져오기 성공]');
+      
       res.json({sessions: sessions, nextSessionIdx: nextSessionIdx});
     } catch(error) {
-      console.log(error);
+      console.log('[세션 정보와 출결 가져오기 오류]', error);
       res.json({sessions: false});
     }
   },
