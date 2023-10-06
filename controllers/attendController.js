@@ -59,7 +59,8 @@ module.exports = {
   confirmAttend: async (req, res) => {
     const userToken = req.body.token;
     try {
-      const userInfo = jwt.verify(userToken, process.env.JWT);
+      const decoded = jwt.verify(userToken, process.env.JWT);
+      const userInfo = await userModel.getOneUserInfo(decoded.user_id);
       const is_admin = userInfo.is_admin;
       
       const todaySession = sessionModel.getTodaySession();
@@ -78,7 +79,7 @@ module.exports = {
             const newAttends = await attendModel.getSessionAttend(todaySession.session_id);
             newAttends.forEach(async (attend) => {
               if(attend.type === '결석')
-                await depositModel.updateDeposit(attend.user_id, -20000);
+                await userModel.updateDeposit(attend.user_id, -20000);
             });
           } else {
             // 두 번째 출결: 오늘 날짜의 Attend 테이블 데이터가 있음
@@ -86,7 +87,7 @@ module.exports = {
             // 65번째 줄에서 조회한 attends 중 결석이면 +2만으로 회복
             attends.forEach(async (attend) => {
               if(attend.type === '결석')
-                await depositModel.updateDeposit(attend.user_id, 20000);
+                await userModel.updateDeposit(attend.user_id, 20000);
             });
             result = await attendModel.addNextAttend(todaySession.session_id, 2);
             part = 2;
@@ -95,10 +96,17 @@ module.exports = {
             const newAttends = await attendModel.getSessionAttend(todaySession.session_id);
             newAttends.forEach(async (attend) => {
               if(attend.type === '결석')
-                await depositModel.updateDeposit(attend.user_id, -20000);
+                await userModel.updateDeposit(attend.user_id, -20000);
               else if(attend.type === '지각')
-                await depositModel.updateDeposit(attend.user_id, -10000);
+                await userModel.updateDeposit(attend.user_id, -10000);
             });
+
+            const userNewInfo = await userModel.getOneUserInfo(decoded.user_id);
+            if (userNewInfo.deposit > 120000) {
+              // 수정 결과 재반영 후 보증금이 12만원 이상이 되면 쿠폰 사용 취소
+              const excess = Math.trunc((userNewInfo.deposit - 12000)/10000);
+              await depositModel.updateExcessCoupon(userId, excess);
+            }
           }
           console.log('[출석 저장 성공]');
           return res.json({ result: result, part: part });
@@ -133,9 +141,9 @@ module.exports = {
             // 123번째 줄에서 조회한 attends 중 결석이면 +2만으로 회복, 지각이면 +1만으로 회복
             attends.forEach(async (attend) => {
               if(attend.type === '결석')
-                await depositModel.updateDeposit(attend.user_id, 20000);
+                await userModel.updateDeposit(attend.user_id, 20000);
               else if(attend.type === '지각')
-                await depositModel.updateDeposit(attend.user_id, 10000);
+                await userModel.updateDeposit(attend.user_id, 10000);
             });
             const result = await attendModel.addNextAttend(todaySession.session_id, 3);
             const part = 3;
@@ -144,10 +152,17 @@ module.exports = {
             const newAttends = await attendModel.getSessionAttend(todaySession.session_id);
             newAttends.forEach(async (attend) => {
               if(attend.type === '결석')
-                await depositModel.updateDeposit(attend.user_id, -20000);
+                await userModel.updateDeposit(attend.user_id, -20000);
               else if(attend.type === '지각')
-                await depositModel.updateDeposit(attend.user_id, -10000);
+                await userModel.updateDeposit(attend.user_id, -10000);
             });
+            
+            const userNewInfo = await userModel.getOneUserInfo(decoded.user_id);
+            if (userNewInfo.deposit > 120000) {
+              // 수정 결과 재반영 후 보증금이 12만원 이상이 되면 쿠폰 사용 취소
+              const excess = Math.trunc((userNewInfo.deposit - 12000)/10000);
+              await depositModel.updateExcessCoupon(userId, excess);
+            }
             console.log('[출석 종료 성공]');
             return res.json({ result: result, part: part });
           } catch (error) {
