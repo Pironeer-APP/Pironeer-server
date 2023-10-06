@@ -47,7 +47,7 @@ module.exports = {
     }
   },
   useCoupon: async (req,res) => {
-    const user_id  = req.body.user_id;
+    const user_id  = req.body.userId;
     await depositModel.useCoupon(user_id);
     res.json({});
   }
