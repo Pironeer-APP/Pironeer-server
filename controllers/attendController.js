@@ -32,6 +32,10 @@ module.exports = {
       const user_id = userInfo.user_id;
       const input_code = req.body.input_code;
 
+      console.log('서버가 받은 데이터!');
+      console.log('사용자 정보:', userInfo);
+      console.log('입력한 코드:', input_code);
+
       try {
         const code = await attendModel.getCode();
         // 생성된 코드가 있고, 코드와 입력된 코드가 같으면 출석
