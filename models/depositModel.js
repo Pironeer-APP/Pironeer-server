@@ -69,10 +69,13 @@ module.exports = {
     
     return result[0];
   },
-  deleteCoupon: async (coupon_id) => {
-    const query = 'DELETE FROM Coupon WHERE coupon_id=?;';
+  deleteCoupon: async (user_id) => {
+    const query = `DELETE FROM Coupon
+      WHERE user_id=? AND is_used=0
+      ORDER BY updated_at DESC
+      LIMIT 1;`;
     try {
-      await db.query(query, [coupon_id]);
+      await db.query(query, [user_id]);
       return true;
     } catch(error) {
       console.log(error);

@@ -56,7 +56,7 @@ module.exports = {
     try {
       const adminInfo = jwt.verify(adminToken, process.env.JWT);
       if(adminInfo.is_admin) { // 관리자만 삭제 가능
-        await depositModel.deleteCoupon(req.body.coupon_id);
+        await depositModel.deleteCoupon(req.body.userInfo.user_id);
         res.json({result: true});
       } else {
         res.json({result: false});
