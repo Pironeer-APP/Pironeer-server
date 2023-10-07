@@ -91,7 +91,7 @@ module.exports = {
     }
     // final_attend 도출
     const query = `
-    SELECT Attend.user_id, Attend.type, TempAttend.type, Attend.created_at, TempAttend.created_at,
+    SELECT Attend.user_id AS user_id, Attend.type, TempAttend.type, Attend.created_at, TempAttend.created_at,
     CASE
       WHEN Attend.type='출석' AND TempAttend.type='결석'
       THEN '지각'
