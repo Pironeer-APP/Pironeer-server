@@ -8,7 +8,8 @@ module.exports = {
     return codes[0][0];
   },
   generateCode: async () => {
-    const randomCode = Math.floor(Math.random() * 9000 + 1000); //1000과 9999사이
+    let randomCode = '';
+    for(let i = 0; i < 4; i++) randomCode += String(Math.floor(Math.random() * 10));
     const query1 = 'INSERT INTO Code(code) VALUES (?)';
     await db.query(query1, [randomCode]);
 
@@ -21,6 +22,18 @@ module.exports = {
 
     const result = await db.query(query, [user_id, type]);
     return result[0];
+  },
+  // 코드에 따라 출결 삭제
+  deleteTempAttend: async (deleteCode) => {
+    const query = `
+    DELETE FROM TempAttend
+    WHERE code=?;`;
+
+    const result = await db.query(query, [deleteCode]);
+    if(result[0].affectedRows > 0) {
+      return '삭제 완료';
+    }
+    return '코드 없음';
   },
   getSessionAttend: async (session_id) => {
     // 조회 시 현재 세션에 해당하는 오늘의 확정된 출결 가져오기
