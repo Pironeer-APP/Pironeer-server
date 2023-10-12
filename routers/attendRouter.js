@@ -4,6 +4,7 @@ const attendController = require('../controllers/attendController.js');
 
 router.post('/generatecode', attendController.generateCode);
 router.post('/addAttend', attendController.addAttend);
+router.post('/deleteTempAttend', attendController.deleteTempAttend);
 router.post('/confirmAttend', attendController.confirmAttend);
 router.post('/endAttend', attendController.endAttend);
 router.post('/updateAttend', attendController.updateAttend);

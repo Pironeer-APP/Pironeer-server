@@ -55,6 +55,23 @@ module.exports = {
       return res.json({ result: false });
     }
   },
+  // 출결 삭제 버튼을 눌렀을 때
+  deleteTempAttend: async (req, res) => {
+    const {userToken, deleteCode} = req.body;
+    console.log('받은 코드:', deleteCode);
+    try {
+      const decoded = jwt.verify(userToken, process.env.JWT);
+      const userInfo = await userModel.getOneUserInfo(decoded.user_id);
+      if (userInfo.is_admin) {
+        const result = await attendModel.deleteTempAttend(deleteCode);
+
+        return res.json({result: result});
+      }
+    } catch(error) {
+      console.log('[출결 삭제 실패]', error);
+      return res.json({result: '삭제 실패'});
+    }
+  },
   // 출결 저장 버튼을 눌렀을 때
   confirmAttend: async (req, res) => {
     const userToken = req.body.token;
@@ -272,6 +289,7 @@ module.exports = {
       const userInfo = jwt.verify(userToken, process.env.JWT);
       if(userInfo.is_admin) {
         const code = await attendModel.getCode();
+        console.log('[생성된 코드]', code);
         return res.json({code: code});
       }
       console.log('[출석 코드 조회 실패]_관리자 권한 필요');
