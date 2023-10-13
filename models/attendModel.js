@@ -1,4 +1,5 @@
 const db = require('../config/db.js');
+const sessionModel = require('./sessionModel.js');
 
 module.exports = {
   getCode: async () => {
@@ -43,100 +44,45 @@ module.exports = {
 
     return attends[0];
   },
-  addFirstAttend: async (session_id) => {
-    // 오늘의 TempAttend에 없는 결석한 사람들 user_id 가져오기
-    const getAbsentUserId = `
-    SELECT user_id
-    FROM User
-    WHERE user_id NOT IN (
-      SELECT user_id
-      FROM TempAttend
-      WHERE DATE_FORMAT(created_at, "%Y-%m-%d")=CURDATE())
-      AND is_admin=0;`;
-    // 오늘의 TempAttend에 있는 출석한 사람들 데이터 가져오기
-    const getTempAttend = 'SELECT * FROM TempAttend WHERE DATE_FORMAT(created_at, "%Y-%m-%d")=CURDATE();';
-
-    // Attend 테이블에 정보 복제
-    const insertAttend = 'INSERT INTO Attend(user_id, session_id, type) VALUES(?, ?, ?);';
-
-    const absentUserIdList = await db.query(getAbsentUserId);
-    const tempAttendList = await db.query(getTempAttend);
-
-    try {
-      for (let tempAttend of tempAttendList[0]) {
-        console.log(tempAttend);
-        await db.query(insertAttend, [tempAttend.user_id, session_id, '출석']);
-      }
-      for (let absentUserId of absentUserIdList[0]) {
-        console.log(absentUserId);
-        await db.query(insertAttend, [absentUserId.user_id, session_id, '결석']);
-      }
-      return true;
-    } catch (error) {
-      console.log(error);
-      return false;
-    }
-  },
-  addNextAttend: async (session_id, part) => {
-    // 오늘의 TempAttend에 없는 결석한 사람들 user_id 가져오기
-    const getAbsentUserId = `
-    SELECT user_id
-    FROM User
-    WHERE user_id NOT IN (
-      SELECT user_id
-      FROM TempAttend
-      WHERE DATE_FORMAT(created_at, "%Y-%m-%d")=CURDATE())
-      AND is_admin=0;`;
-    
-    const absentUserIdList = await db.query(getAbsentUserId);
-
-    const insertTempAttend = 'INSERT INTO TempAttend(user_id, type) VALUES(?, ?);';
-    
-    for (let absentUserId of absentUserIdList[0]) {
-      console.log(absentUserId);
-      await db.query(insertTempAttend, [absentUserId.user_id, '결석']);
-    }
-    // 두 번째와 세 번째 함수의 차이점이 크지 않아 하나로 합침
-    const standard = {
-      attend_type2: part === 2 ? '결석' : '지각',
-      temp_attend_type2: part === 2 ? '출석' : '결석',
-      final_type2: part === 2 ? '지각' : '결석'
-    }
-    // final_attend 도출
+  // 오늘 출결 종료
+  endAttend: async (session_id) => {
+    /*
+    1. mysql utc 시간에 따라 오늘 세션 정보 조회
+    2. TempAttend 테이블 조회, 출결 사항 집계
+    3. 하나의 user_id가 출석 데이터를 4개 이상 가지고 있다면 잘못된 출결
+    4. user 별 출석 데이터 3개: 출석, 2개: 지각, 1개 이하: 결석
+    */
     const query = `
-    SELECT Attend.user_id AS user_id, Attend.type, TempAttend.type, Attend.created_at, TempAttend.created_at,
-    CASE
-      WHEN Attend.type='출석' AND TempAttend.type='결석'
-      THEN '지각'
-      WHEN Attend.type='${standard.attend_type2}' AND TempAttend.type='${standard.temp_attend_type2}'
-      THEN '${standard.final_type2}'
-      ELSE Attend.type
-    END AS final_attend
-    FROM Attend
-    JOIN
-    TempAttend
-    ON Attend.user_id=TempAttend.user_id AND DATE_FORMAT(Attend.created_at, "%Y-%m-%d")=CURDATE()
-    WHERE session_id=?
-    AND DATE_FORMAT(TempAttend.created_at, "%Y-%m-%d")=CURDATE();`;
-    // Attend 테이블 update
-    const updateAttend = `
-    UPATE Attend
-    SET type=?
-    WHERE user_id=? AND session_id=?;`;
-    // TempAttend 테이블 삭제
-    const clearTempAttend = `DELETE FROM TempAttend;`;
+    SELECT IF(COUNT(user_id)>3, 'false', 'true') AS attend_cnt FROM TempAttend GROUP BY user_id;`;
 
-    try {
-      const result = await db.query(query, [session_id]);
-      for (let attendInfo of result[0]) {
-        console.log(attendInfo);
-        await db.query(updateAttend, [attendInfo.final_attend, attendInfo.user_id, session_id]);
-      }
-      await db.query(clearTempAttend);
-      return true;
-    } catch (error) {
-      return false;
+    const insert_query = `
+    INSERT INTO Attend
+    (user_id, session_id, type)
+    SELECT User.user_id AS user_id, ? AS session_id,
+      CASE
+      WHEN COUNT(User.user_id)=3
+      THEN '출석'
+      WHEN COUNT(User.user_id)=2
+      THEN '지각'
+      WHEN COUNT(User.user_id)<=1
+      THEN '결석'
+      WHEN COUNT(User.user_id)>3
+      THEN '에러'
+      END AS type
+    FROM TempAttend
+    RIGHT JOIN User
+    ON User.user_id=TempAttend.user_id
+    GROUP BY User.user_id;`;
+
+    // 3번
+    const cntTempAttend = await db.query(query);
+    for(let tempAttend of cntTempAttend[0]) {
+      if(tempAttend.attend_cnt === 'false') return false;
     }
+    
+    // Attend 테이블에 출결 데이터 확정
+    await db.query(insert_query, [session_id]);
+    return true;
   },
   getUserSessionAttend: async (user_id, session_id) => {
     const query = 'SELECT * FROM Attend WHERE user_id=? AND session_id=?;';
