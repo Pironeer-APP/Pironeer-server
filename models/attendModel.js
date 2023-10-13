@@ -51,6 +51,7 @@ module.exports = {
     2. TempAttend 테이블 조회, 출결 사항 집계
     3. 하나의 user_id가 출석 데이터를 4개 이상 가지고 있다면 잘못된 출결
     4. user 별 출석 데이터 3개: 출석, 2개: 지각, 1개 이하: 결석
+    5. TempAttend 삭제
     */
     const query = `
     SELECT IF(COUNT(user_id)>3, 'false', 'true') AS attend_cnt FROM TempAttend GROUP BY user_id;`;
@@ -82,6 +83,11 @@ module.exports = {
     
     // Attend 테이블에 출결 데이터 확정
     await db.query(insert_query, [session_id]);
+
+    // 5번
+    const delete_query = 'DELETE FROM TempAttend';
+    await db.query(delete_query);
+    
     return true;
   },
   getUserSessionAttend: async (user_id, session_id) => {
