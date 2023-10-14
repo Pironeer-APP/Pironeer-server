@@ -159,7 +159,7 @@ module.exports = {
     if(leftCnt > 0) {
       await depositModel.updateExcessCoupon(user_id, leftCnt);
       // 12만원 넘어간 보증금 복귀
-      await depositModel.updateDeposit(user_id, -leftDeposit);
+      await userModel.updateDeposit(user_id, -leftDeposit);
     }
     
     // 출결 수정 사항 반영

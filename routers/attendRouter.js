@@ -9,6 +9,8 @@ router.post('/deleteTempAttend', attendController.deleteTempAttend);
 router.post('/endAttend', attendController.endAttend);
 router.post('/cancelAttend', attendController.cancelAttend);
 
+router.post('/updateAttend', attendController.updateAttend);
+
 router.post('/getSessionAttendAdmin', attendController.getSessionAttendAdmin);
 router.post('/getSessionAndAttend', attendController.getSessionAndAttend);
 router.post('/getCode', attendController.getCode);
