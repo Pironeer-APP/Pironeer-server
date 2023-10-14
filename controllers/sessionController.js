@@ -5,15 +5,15 @@ const getNextScheduleIdx = require('../reusable/getNextScheduleIdx');
 module.exports = {
   addSchedule: async (req, res) => {
     const { title, date, face, place, userToken } = req.body;
-    // const mySQLDateString = date.slice(0, 19).replace('T', ' ');
-    // console.log('서버가 받은 date', mySQLDateString);
+    const mySQLDateString = date.slice(0, 19).replace('T', ' ');
     console.log('서버가 받은 date', date);
+    console.log('서버가 받은 date 가공', mySQLDateString);
     try {
       const userInfo = jwt.verify(userToken, process.env.JWT);
       // 관리자만 세션 일정 등록 가능
       // 관리자 level 기수 일정 등록
       if (userInfo.is_admin) {
-        const result = await sessionModel.addSchedule(title, date, face, place, userInfo.level);
+        const result = await sessionModel.addSchedule(title, mySQLDateString, face, place, userInfo.level);
         res.json({ result: result });
       }
     } catch (error) {
@@ -44,13 +44,17 @@ module.exports = {
     try {
       const userInfo = jwt.verify(userToken, process.env.JWT);
       const sessions = await sessionModel.getSessions(userInfo.level);
+      let nextSessionIdx = 0;
+      let nextSessionId = 0;
+      for(let i = 0; i < sessions.length; i++) {
+        if(sessions[i].comming === 'before') {
+          nextSessionIdx = sessions[i].cnt - 1;
+          nextSessionId = sessions[i-1].session_id;
+          break;
+        }
+      }
 
-      console.log('세션들...', sessions);
-
-      const nextSessionIdx = getNextScheduleIdx.getNextScheduleIdx(sessions);
-      console.log(nextSessionIdx);
-
-      res.json({ sessions: sessions, nextSessionIdx: nextSessionIdx });
+      res.json({ sessions: sessions, nextSessionId: nextSessionId, nextSessionIdx: nextSessionIdx });
     } catch (error) {
       console.log('[세션 일정 조회 실패]', error);
       res.json({ sessions: false });

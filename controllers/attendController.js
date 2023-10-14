@@ -74,19 +74,14 @@ module.exports = {
   },
   // 오늘 출결 종료 버튼을 눌렀을 때
   endAttend: async (req, res) => {
-    const {userToken} = req.body;
+    const {userToken, session_id} = req.body;
     try {
       const decoded = jwt.verify(userToken, process.env.JWT);
       const userInfo = await userModel.getOneUserInfo(decoded.user_id);
       console.log('사용자 정보', userInfo);
       if (userInfo.is_admin) {
-        const getTodaySession = sessionModel.getCurDateSession();
-        // 오늘 세션이 있을 때만
-        if(getTodaySession.session_id) {
-          const result = await attendModel.endAttend(getTodaySession.session_id);
-          return res.json({result: result}); //true or false 반환 됨
-        }
-        return res.json({result: '오늘 세션 없음'});
+        const result = await attendModel.endAttend(session_id);
+        return res.json({result: result}); //true or false 반환 됨
       }
     } catch(error) {
       console.log('[출결 종료 실패]', error);
