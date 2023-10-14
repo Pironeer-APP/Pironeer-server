@@ -39,7 +39,7 @@ module.exports = {
         UNION 
         SELECT type, created_at AS date, DATE_FORMAT(created_at, '%m.%d') AS monthDay
         FROM Attend
-        WHERE user_id=?
+        WHERE user_id=? AND NOT type='출석'
         UNION 
         SELECT type, updated_at AS date, DATE_FORMAT(updated_at, '%m.%d') AS monthDay
         FROM Coupon
