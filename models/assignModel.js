@@ -6,8 +6,6 @@ module.exports = {
         SELECT
          ROW_NUMBER() OVER (ORDER BY AssignSchedule.created_at DESC) AS AssignId,
          AssignSchedule.title,
-         DATE_FORMAT(AssignSchedule.due_date, "%m.%d") AS dueDate,
-         UPPER(DATE_FORMAT(AssignSchedule.created_at, "%m.%d %a")) AS createdDate,
          Assign.grade,
          AssignSchedule.created_at AS created_at,
          AssignSchedule.due_date AS due_date
