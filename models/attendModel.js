@@ -16,12 +16,12 @@ module.exports = {
 
     return randomCode;
   },
-  addTempAttend: async (user_id, type) => {
+  addTempAttend: async (user_id, input_code) => {
     const query = `
-    INSERT INTO TempAttend(user_id, type)
+    INSERT INTO TempAttend(user_id, code)
     VALUES(?, ?);`;
 
-    const result = await db.query(query, [user_id, type]);
+    const result = await db.query(query, [user_id, input_code]);
     return result[0];
   },
   // 코드에 따라 출결 삭제
