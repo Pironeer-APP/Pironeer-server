@@ -47,12 +47,21 @@ module.exports = {
   // 오늘 출결 종료
   endAttend: async (session_id) => {
     /*
-    1. mysql utc 시간에 따라 오늘 세션 정보 조회
+    1. session_id에 따라 오늘 세션 출결 없을 때만 진행
     2. TempAttend 테이블 조회, 출결 사항 집계
     3. 하나의 user_id가 출석 데이터를 4개 이상 가지고 있다면 잘못된 출결
     4. user 별 출석 데이터 3개: 출석, 2개: 지각, 1개 이하: 결석
     5. TempAttend 삭제
+    6. 보증금 차감
     */
+
+    // 오늘 저장된 출결 있는지
+    const attend_query = `
+    SELECT * FROM Attend WHERE session_id=?;`;
+
+    const attends = await db.query(attend_query, [session_id]);
+    if(attends[0].length > 0) return '저장된 출결 있음';
+
     const query = `
     SELECT IF(COUNT(user_id)>3, 'false', 'true') AS attend_cnt FROM TempAttend GROUP BY user_id;`;
 
@@ -73,6 +82,7 @@ module.exports = {
     FROM TempAttend
     RIGHT JOIN User
     ON User.user_id=TempAttend.user_id
+    WHERE is_admin=0
     GROUP BY User.user_id;`;
 
     // 3번
@@ -89,6 +99,13 @@ module.exports = {
     await db.query(delete_query);
     
     return true;
+  },
+  // 오늘 출결 데이터 제거
+  cancelAttend: async (session_id) => {
+    const query = 'DELETE FROM Attend WHERE session_id=?';
+    const result = await db.query(query, [session_id]);
+
+    return result[0];
   },
   getUserSessionAttend: async (user_id, session_id) => {
     const query = 'SELECT * FROM Attend WHERE user_id=? AND session_id=?;';
