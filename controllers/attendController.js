@@ -85,9 +85,9 @@ module.exports = {
         const attends = await attendModel.getSessionAttend(session_id);
         for(let attend of attends) {
           if(attend.type === '결석') {
-            await userModel.updateDeposit(user_id, -20000);
+            await userModel.updateDeposit(attend.user_id, -20000);
           } else if(attend.type === '지각') {
-            await userModel.updateDeposit(user_id, -10000);
+            await userModel.updateDeposit(attend.user_id, -10000);
           }
         }
         return res.json({result: result}); //true or false 반환 됨
