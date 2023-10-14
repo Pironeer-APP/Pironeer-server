@@ -40,7 +40,7 @@ module.exports = {
         const code = await attendModel.getCode();
         // 생성된 코드가 있고, 코드와 입력된 코드가 같으면 출석
         if (code.code && code.code == input_code) {
-          const result = await attendModel.addTempAttend(user_id, '출석');
+          const result = await attendModel.addTempAttend(user_id, input_code);
           console.log('[출석 성공]', userInfo.name, '출석');
           return res.json({ result: result });
         }
