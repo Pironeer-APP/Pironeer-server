@@ -52,6 +52,7 @@ module.exports = {
     3. 하나의 user_id가 출석 데이터를 4개 이상 가지고 있다면 잘못된 출결
     4. user 별 출석 데이터 3개: 출석, 2개: 지각, 1개 이하: 결석
     5. TempAttend 삭제
+    6. 보증금 차감
     */
 
     // 오늘 저장된 출결 있는지
@@ -98,6 +99,13 @@ module.exports = {
     await db.query(delete_query);
     
     return true;
+  },
+  // 오늘 출결 데이터 제거
+  cancelAttend: async (session_id) => {
+    const query = 'DELETE FROM Attend WHERE session_id=?';
+    const result = await db.query(query, [session_id]);
+
+    return result[0];
   },
   getUserSessionAttend: async (user_id, session_id) => {
     const query = 'SELECT * FROM Attend WHERE user_id=? AND session_id=?;';
