@@ -51,6 +51,8 @@ app.use('/api/attend', attendRouter);
 // 알림
 app.use('/api/fcm', fcmRouter);
 
+app.get('/test', (req, res) => res.send('hello!'));
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
