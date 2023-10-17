@@ -224,26 +224,19 @@ module.exports = {
         res.json({ data: false });
     }
   },
-  getCurrentAssigns: async (req, res) => {
-    const {userToken} = req.body;
+  // 해당 기수 과제 정보 읽어오기
+  getAssigns: async (req, res) => {
+    const { userToken } = req.body;
+    
     try {
         const userInfo = jwt.verify(userToken, process.env.JWT);
-        const currentAssigns = await assignModel.getCurrentAssigns(userInfo.level);
-        res.json({currentAssign: currentAssigns[0], currentAssignCnt: currentAssigns.length});
+        const data = await assignModel.getAssigns(userInfo.level);
+
+        console.log('[기수 과제 조회 성공]');
+        return res.json({data: data});
     } catch(error) {
-        console.log('[getCurrentAssigns error]', error);
-        res.json({currentAssign: false, currentAssignCnt: false});
-    }
-  },
-  getRecentAssign: async (req, res) => {
-    const {userToken} = req.body;
-    try {
-        const userInfo = jwt.verify(userToken, process.env.JWT);
-        const recentAssign = await assignModel.getRecentAssign(userInfo.level);
-        res.json({recentAssign: recentAssign});
-    } catch(error) {
-        console.log('[getRecentAssign error]', error);
-        res.json({recentAssign: false});
+        console.log('[기수 과제 조회 실패]', error);
+        return res.json({data: data});
     }
   }
 };

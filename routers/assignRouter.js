@@ -10,7 +10,6 @@ router.post('/updateAssign', assignController.updateAssign); // AdminUpdateAssig
 router.post('/deleteAssign', assignController.deleteAssign);
 router.post('/createAssignGrade', assignController.createGrade);
 router.post('/updateAssignGrade', assignController.updateGrade);
-router.post('/getCurrentAssigns', assignController.getCurrentAssigns);
-router.post('/getRecentAssign', assignController.getRecentAssign);
+router.post('/getAssigns', assignController.getAssigns);
 
 module.exports = router;

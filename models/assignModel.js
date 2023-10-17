@@ -6,8 +6,6 @@ module.exports = {
         SELECT
          ROW_NUMBER() OVER (ORDER BY AssignSchedule.created_at DESC) AS AssignId,
          AssignSchedule.title,
-         DATE_FORMAT(AssignSchedule.due_date, "%m.%d") AS dueDate,
-         UPPER(DATE_FORMAT(AssignSchedule.created_at, "%m.%d %a")) AS createdDate,
          Assign.grade,
          AssignSchedule.created_at AS created_at,
          AssignSchedule.due_date AS due_date
@@ -106,27 +104,6 @@ module.exports = {
         `;
         await db.query(query, [updateGrade, assignScheduleId, UserId]);
   },
-  getCurrentAssigns: async (level) => {
-    const query = `
-    SELECT *
-    FROM AssignSchedule
-    WHERE due_date >= CURDATE() AND level=?
-    ORDER BY due_date;`;
-    const currentAssigns = await db.query(query, [level]);
-
-    return currentAssigns[0];
-  },
-  getRecentAssign: async (level) => {
-    const query = `
-    SELECT *
-    FROM AssignSchedule
-    WHERE due_date < CURDATE() AND level=?
-    ORDER BY due_date DESC
-    LIMIT 1;`;
-    const recentAssign = await db.query(query, [level]);
-
-    return recentAssign[0][0];
-  },
   getCurrentAssignGrade: async (assignScheduleId, userId) => {
     const query =`
     SELECT
@@ -140,5 +117,19 @@ module.exports = {
     const currentGradeValue = currentGrade[0][0];
 
     return currentGradeValue.grade;
+  },
+  getAssigns: async (level) => {
+    const query = `
+    SELECT
+      ROW_NUMBER() OVER (ORDER BY AssignSchedule.created_at) AS NewAssignId,
+      title, assignschedule_id, due_date,
+      created_at
+    FROM
+      AssignSchedule
+    WHERE
+      level = ?;`;
+    
+    const assigns = await db.query(query, [level]);
+    return assigns[0];
   }
 };
