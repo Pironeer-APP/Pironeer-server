@@ -35,7 +35,7 @@ module.exports = {
           created_at AS date,
           DATE_FORMAT(created_at, '%m.%d') AS monthDay
         FROM Assign
-        WHERE user_id=? AND NOT grade = 3 
+        WHERE user_id=? AND NOT grade >= 3 
         UNION 
         SELECT type, created_at AS date, DATE_FORMAT(created_at, '%m.%d') AS monthDay
         FROM Attend
