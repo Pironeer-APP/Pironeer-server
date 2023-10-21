@@ -20,7 +20,6 @@ module.exports = {
     const query = `
     SELECT *,
     ROW_NUMBER() OVER(ORDER BY date DESC) AS cnt,
-    IF(date > NOW(), 'after', 'before') AS comming
     FROM Session
     WHERE level=20;`;
     const sessions = await db.query(query, [level]);

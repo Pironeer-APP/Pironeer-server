@@ -44,17 +44,8 @@ module.exports = {
     try {
       const userInfo = jwt.verify(userToken, process.env.JWT);
       const sessions = await sessionModel.getSessions(userInfo.level);
-      let nextSessionIdx = 0;
-      let nextSessionId = 0;
-      for(let i = 0; i < sessions.length; i++) {
-        if(sessions[i].comming === 'before') {
-          nextSessionIdx = sessions[i].cnt - 1;
-          nextSessionId = sessions[i-1].session_id;
-          break;
-        }
-      }
 
-      res.json({ sessions: sessions, nextSessionId: nextSessionId, nextSessionIdx: nextSessionIdx });
+      res.json({ sessions: sessions });
     } catch (error) {
       console.log('[세션 일정 조회 실패]', error);
       res.json({ sessions: false });
