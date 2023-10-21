@@ -120,6 +120,11 @@ module.exports = {
 
     return result[0];
   },
+  // 특정 회원 출결 정보 제거
+  removeAttend: async (user_id, session_id) => {
+    const query = 'DELETE FROM Attend WHERE user_id=? AND session_id=?;';
+    await db.query(query, [user_id, session_id]);
+  },
   getSessionAttendAdmin: async (level, session_id) => {
     const qurey = `
     SELECT User.user_id, Attend.session_id, User.name, User.level, User.is_admin, Attend.session_id, Attend.type
@@ -186,5 +191,9 @@ module.exports = {
     const code = await db.query(query);
 
     return code[0][0];
+  },
+  createAttend: async (user_id, session_id, type) => {
+    const query = 'INSERT INTO Attend(user_id, session_id, type) VALUES(?, ?, ?);';
+    await db.query(query, [user_id, session_id, type]);
   }
 }
