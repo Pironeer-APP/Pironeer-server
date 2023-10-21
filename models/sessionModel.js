@@ -19,7 +19,7 @@ module.exports = {
   getSessions: async (level) => {
     const query = `
     SELECT *,
-    ROW_NUMBER() OVER(ORDER BY date DESC) AS cnt,
+    ROW_NUMBER() OVER(ORDER BY date DESC) AS cnt
     FROM Session
     WHERE level=20;`;
     const sessions = await db.query(query, [level]);
