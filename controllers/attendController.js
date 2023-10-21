@@ -123,7 +123,18 @@ module.exports = {
     console.log(user_id, attendType, session_id);
     // 1. 수정 대상 출결 가져옴
     const targetAttend = await attendModel.getUserSessionAttend(user_id, session_id);
-    console.log(targetAttend);
+    // 1-1. 수정 대상 출결이 없을 때 출결을 새로 생성
+    if(targetAttend === undefined) {
+      await attendModel.createAttend(user_id, session_id, attendType);
+      // 지각/결석인 경우 보증금 차감
+      if(attendType === '지각') {
+        await userModel.updateDeposit(user_id, -10000);
+      } else if(attendType === '결석') {
+        await userModel.updateDeposit(user_id, -20000);
+      }
+      console.log('[출결 신규 생성됨]');
+      return res.json({result: true});
+    }
     // 2. type 비교, 같으면 update 하지 않음
     if(targetAttend.type === attendType) {
       console.log('[출결 변동 사항 없음]');
@@ -166,6 +177,32 @@ module.exports = {
     const result = await attendModel.updateAttend(user_id, attendType, session_id);
 
     res.json({result: result});
+  },
+  // 특정 회원 출석 제거
+  removeAttend: async (req, res) => {
+    /*
+      1. user_id와 session_id로 출결 정보 조회
+      1-1. 없으면 리턴
+      2. 있으면 type 기억
+      3. type이 지각/결석이면 보증금 회복
+      4. 출결 데이터 제거
+    */
+
+    const {user_id, session_id} = req.body;
+    // 1번
+    const attend = await attendModel.getUserSessionAttend(user_id, session_id);
+    if(attend === undefined) return res.json({result: true});
+    // 2, 3번
+    if(attend.type === '지각') {
+      await userModel.updateDeposit(user_id, 10000);
+    } else if(attend.type === '결석') {
+      await userModel.updateDeposit(user_id, 20000);
+    }
+    // 4번
+    await attendModel.removeAttend(user_id, session_id);
+
+    console.log('[출결 제거 완료]');
+    return res.json({result: true});
   },
   getSessionAttendAdmin: async (req, res) => {
     const userToken = req.body.userToken;
