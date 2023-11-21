@@ -120,13 +120,14 @@ module.exports = {
       return false;
     }
   },
-  unregister: async (userInfo) => {
+  unregister: async (user_id) => {
     const query = `DELETE FROM User WHERE user_id=?;`;
     
     try {
-      const result = await db.query(query, [userInfo.user_id]);
+      const result = await db.query(query, [user_id]);
       return result[0];
-    } catch {
+    } catch(error) {
+      console.log(error);
       return false;
     }
   }

@@ -92,7 +92,7 @@ module.exports = {
   unregister: async (req, res) => {
     try {
       const userInfo = jwt.verify(req.body.token, process.env.JWT);
-      const result = await authModel.unregister(userInfo);
+      const result = await authModel.unregister(userInfo.user_id);
       res.json({ result: result });
     } catch (error) {
       res.json({ result: false});
