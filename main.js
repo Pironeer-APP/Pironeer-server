@@ -53,6 +53,8 @@ app.use('/api/fcm', fcmRouter);
 
 app.get('/test', (req, res) => res.send('hello!'));
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
+
+module.exports = server;
