@@ -90,9 +90,12 @@ module.exports = {
     }
   },
   unregister: async (req, res) => {
-    const userInfo = req.body;
-    const result = await authModel.unregister(userInfo);
-
-    res.json({ result: result });
+    try {
+      const userInfo = jwt.verify(req.body.token, process.env.JWT);
+      const result = await authModel.unregister(userInfo);
+      res.json({ result: result });
+    } catch (error) {
+      res.json({ result: false});
+    }
   }
 }
