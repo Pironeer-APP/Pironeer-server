@@ -41,10 +41,13 @@ module.exports = {
       const randPassword = Math.random().toString(36).substring(2, 11);
       const result = await authModel.addUser(body, randPassword);
 
-      // 합격자 정보 이메일 전송
-      const mailerResult = await mailer(body.email, body.name, body.phone, randPassword);
-
-      return mailerResult;
+      if(result) {
+        // 합격자 정보 이메일 전송
+        const mailerResult = await mailer(body.email, body.name, body.phone, randPassword);
+        return mailerResult;
+      } else {
+        res.json(null);
+      }
     } catch (error) {
       res.json(null);
     }
