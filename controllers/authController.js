@@ -44,7 +44,7 @@ module.exports = {
       if(result) {
         // 합격자 정보 이메일 전송
         const mailerResult = await mailer(body.email, body.name, body.phone, randPassword);
-        return mailerResult;
+        res.json(mailerResult);
       } else {
         res.json(null);
       }
