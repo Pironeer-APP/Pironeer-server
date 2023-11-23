@@ -142,6 +142,7 @@ module.exports = {
         if (userInfo.is_admin) {
             // 현재 user의 grade 불러오기
             const curGrade = await assignModel.getCurrentAssignGrade(assignScheduleId, userId);
+            const newDeposit = 0;
 
             // 1. curGrade에 따라
             // switch (curGrade) {
@@ -175,22 +176,21 @@ module.exports = {
 
             // 2. 수행할 작업의 종류에 따라
             if ((curGrade === 3 && updateGrade === 0) || (curGrade === 4 && updateGrade === 0))
-                await userModel.updateDeposit(userId, -20000);
+                newDeposit = await userModel.updateDeposit(userId, -20000);
             else if (((curGrade === 1 || curGrade === 2) && updateGrade === 0)
              || (curGrade === 3 && (updateGrade === 1 || updateGrade === 2))
              || (curGrade === 4 && (updateGrade === 1 || updateGrade === 2)))
-                await userModel.updateDeposit(userId, -10000);
+                newDeposit = await userModel.updateDeposit(userId, -10000);
             else if (curGrade === 0 && updateGrade === 4)
-                await userModel.updateDeposit(userId, 20000);
+                newDeposit = await userModel.updateDeposit(userId, 20000);
             else if (((curGrade === 1 || curGrade === 2) && updateGrade === 3)
              || (curGrade === 0 && (updateGrade === 1 || updateGrade === 2))
              || ((curGrade === 1 || curGrade === 2) && updateGrade === 4)) {
-                await userModel.updateDeposit(userId, 10000);
+                newDeposit = await userModel.updateDeposit(userId, 10000);
 
                 // 이미 쿠폰을 사용하여 보증금이 13만원이거나 14만원일 경우
-                const user = await userModel.getOneUserInfo(userId);
-                const newDeposit = user.deposit;
                 console.log(newDeposit);
+
                 if (newDeposit === 130000) {
                     // 가장 최근 사용된 쿠폰 n개를 사용 취소 (SET is_used=0, deposit -10000*n)
                     await depositModel.updateExcessCoupon(userId, 1);
@@ -203,9 +203,9 @@ module.exports = {
             else if (curGrade === 0 && updateGrade === 3) {
                 await userModel.updateDeposit(userId, 20000);
 
-                const user = await userModel.getOneUserInfo(userId);
-                const newDeposit = user.deposit;
+                const newDeposit = await userModel.getOneUserDeposit(userId);
                 console.log(newDeposit);
+                
                 if (newDeposit === 130000) {
                     await depositModel.updateExcessCoupon(userId, 1);
                     await userModel.updateDeposit(userId, -10000);
