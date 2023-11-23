@@ -2,7 +2,6 @@ const attendModel = require('../models/attendModel.js');
 const jwt = require('jsonwebtoken');
 const getNextScheduleIdx = require('../reusable/getNextScheduleIdx.js');
 const sessionModel = require('../models/sessionModel.js');
-const userModel = require('../models/userModel.js');
 const depositModel = require('../models/depositModel.js');
 
 module.exports = {
@@ -61,7 +60,7 @@ module.exports = {
     console.log('받은 코드:', deleteCode);
     try {
       const decoded = jwt.verify(userToken, process.env.JWT);
-      const userInfo = await userModel.getOneUserInfo(decoded.user_id);
+      const userInfo = await authModel.getAccount(decoded.user_id);
       if (userInfo.is_admin) {
         const result = await attendModel.deleteTempAttend(deleteCode);
 
@@ -77,7 +76,7 @@ module.exports = {
     const {userToken, session_id} = req.body;
     try {
       const decoded = jwt.verify(userToken, process.env.JWT);
-      const userInfo = await userModel.getOneUserInfo(decoded.user_id);
+      const userInfo = await authModel.getAccount(decoded.user_id);
       console.log('사용자 정보', userInfo);
       if (userInfo.is_admin) {
         const result = await attendModel.endAttend(session_id);
@@ -85,9 +84,9 @@ module.exports = {
         const attends = await attendModel.getSessionAttend(session_id);
         for(let attend of attends) {
           if(attend.type === '결석') {
-            await userModel.updateDeposit(attend.user_id, -20000);
+            await depositModel.updateDeposit(attend.user_id, -20000);
           } else if(attend.type === '지각') {
-            await userModel.updateDeposit(attend.user_id, -10000);
+            await depositModel.updateDeposit(attend.user_id, -10000);
           }
         }
         return res.json({result: result}); //true or false 반환 됨
@@ -102,7 +101,7 @@ module.exports = {
     const {userToken, session_id} = req.body;
     try {
       const decoded = jwt.verify(userToken, process.env.JWT);
-      const userInfo = await userModel.getOneUserInfo(decoded.user_id);
+      const userInfo = await authModel.getAccount(decoded.user_id);
       console.log('사용자 정보', userInfo);
       if (userInfo.is_admin) {
         const result = await attendModel.cancelAttend(session_id);
@@ -128,9 +127,9 @@ module.exports = {
       await attendModel.createAttend(user_id, session_id, attendType);
       // 지각/결석인 경우 보증금 차감
       if(attendType === '지각') {
-        await userModel.updateDeposit(user_id, -10000);
+        await depositModel.updateDeposit(user_id, -10000);
       } else if(attendType === '결석') {
-        await userModel.updateDeposit(user_id, -20000);
+        await depositModel.updateDeposit(user_id, -20000);
       }
       console.log('[출결 신규 생성됨]');
       return res.json({result: true});
@@ -143,34 +142,34 @@ module.exports = {
     // 3. 다른 경우
     // 3-1. 지각 -> 출석: +1만
     if(targetAttend.type === '지각' && attendType === '출석') {
-      await userModel.updateDeposit(user_id, 10000);
+      await depositModel.updateDeposit(user_id, 10000);
     } else if(targetAttend === '결석') {
       // 3-3. 결석 -> 출석: +2만
       // 3-4. 결석 -> 지각: +1만
       if(attendType === '출석') {
-        await userModel.updateDeposit(user_id, 20000);
+        await depositModel.updateDeposit(user_id, 20000);
       } else if(attendType === '지각') {
-        await userModel.updateDeposit(user_id, 10000);
+        await depositModel.updateDeposit(user_id, 10000);
       }
     } else if(targetAttend.type === '출석') {
       // 3-5. 출석이었을 때와 지각 -> 결석은 더하여 차감되는 경우, 보증금이 음수가 되는지만 확인 (또는 마이너스통장)
       if(attendType === '지각') {
-        await userModel.updateDeposit(user_id, -10000);
+        await depositModel.updateDeposit(user_id, -10000);
       } else if(attendType === '결석') {
-        await userModel.updateDeposit(user_id, -20000);
+        await depositModel.updateDeposit(user_id, -20000);
       }
     } else if(targetAttend.type === '지각' && attendType === '결석') {
-      await userModel.updateDeposit(user_id, -10000);
+      await depositModel.updateDeposit(user_id, -10000);
     }
 
     // 방어권 사용 취소
-    const user = await userModel.getOneUserInfo(user_id);
+    const user = await authModel.getAccount(user_id);
     const leftDeposit = user.deposit - 120000;
     const leftCnt = Math.trunc(leftDeposit / 10000); // 만원으로 나눈 몫만큼 보증금 방어권을 제거하면 됨
     if(leftCnt > 0) {
       await depositModel.updateExcessCoupon(user_id, leftCnt);
       // 12만원 넘어간 보증금 복귀
-      await userModel.updateDeposit(user_id, -leftDeposit);
+      await depositModel.updateDeposit(user_id, -leftDeposit);
     }
     
     // 출결 수정 사항 반영
@@ -194,9 +193,9 @@ module.exports = {
     if(attend === undefined) return res.json({result: true});
     // 2, 3번
     if(attend.type === '지각') {
-      await userModel.updateDeposit(user_id, 10000);
+      await depositModel.updateDeposit(user_id, 10000);
     } else if(attend.type === '결석') {
-      await userModel.updateDeposit(user_id, 20000);
+      await depositModel.updateDeposit(user_id, 20000);
     }
     // 4번
     await attendModel.removeAttend(user_id, session_id);

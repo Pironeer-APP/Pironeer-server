@@ -1,6 +1,5 @@
 const db = require('../config/db.js');
 const bcrypt = require('bcrypt');
-const userModel = require('./userModel.js');
 const salt = 10;
 
 module.exports = {
@@ -130,5 +129,27 @@ module.exports = {
       console.log(error);
       return false;
     }
-  }
+  },
+  getAccount: async (user_id) => {
+    const query = `
+    SELECT *
+    FROM User
+    WHERE user_id=?;`;
+    try {
+      const oneUserInfo = await db.query(query, [user_id]);
+  
+      return oneUserInfo[0][0];
+    } catch (error) {
+      return null;
+    }
+  },
+  getUserByPhone: async (phone) => {
+    const query = `
+    SELECT *
+    FROM User
+    WHERE phone=?;`;
+    const userInfo = await db.query(query, [phone]);
+
+    return userInfo[0][0];
+  },
 }

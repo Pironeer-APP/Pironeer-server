@@ -125,5 +125,14 @@ module.exports = {
       console.log('[보증금 방어권 사용 취소 실패]', error);
       return false;
     }
+  },
+  updateDeposit: async (user_id, adder) => {
+    const query = `
+    UPDATE User
+    SET deposit=deposit + ?
+    WHERE user_id=?;`;
+    const result = await db.query(query, [adder, user_id]);
+
+    return result[0];
   }
 }
