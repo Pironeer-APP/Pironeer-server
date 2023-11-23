@@ -4,7 +4,7 @@ module.exports = {
   showAssign: async (curUserLevel, curUserId) => {
     const query = `
         SELECT
-         ROW_NUMBER() OVER (ORDER BY AssignSchedule.created_at DESC) AS AssignId,
+         ROW_NUMBER() OVER (ORDER BY AssignSchedule.due_date DESC) AS AssignId,
          AssignSchedule.title,
          Assign.grade,
          AssignSchedule.created_at AS created_at,
@@ -26,7 +26,7 @@ module.exports = {
   readAssignAll: async (level) => {
     const query = `
         SELECT
-         ROW_NUMBER() OVER (ORDER BY AssignSchedule.created_at DESC) AS NewAssignId,
+         ROW_NUMBER() OVER (ORDER BY AssignSchedule.due_date DESC) AS NewAssignId,
          title, assignschedule_id, due_date,
          created_at
         FROM
@@ -121,7 +121,7 @@ module.exports = {
   getAssigns: async (level) => {
     const query = `
     SELECT
-      ROW_NUMBER() OVER (ORDER BY AssignSchedule.created_at) AS NewAssignId,
+      ROW_NUMBER() OVER (ORDER BY AssignSchedule.due_date) AS NewAssignId,
       title, assignschedule_id, due_date,
       created_at
     FROM
