@@ -1,5 +1,4 @@
 const authModel = require('../models/authModel.js');
-const userModel = require("../models/userModel.js");
 const jwt = require('jsonwebtoken');
 const mailer = require("../nodemailer/mailer.js");
 
@@ -23,7 +22,7 @@ module.exports = {
     const phone = req.body.phone;
     try {
       const newPassword = Math.random().toString(36).substring(2, 11);
-      const account = await userModel.getUserByPhone(phone);
+      const account = await authModel.getUserByPhone(phone);
       if (account) {
         await authModel.findAccount(phone, newPassword);
         const result = await mailer(account.email, account.name, phone, newPassword);
@@ -80,7 +79,7 @@ module.exports = {
         await authModel.updateLevel(data, userInfo.user_id);
       }
 
-      let updatedUserInfo = await userModel.getOneUserInfo(userInfo.user_id);
+      let updatedUserInfo = await authModel.getAccount(userInfo.user_id);
       try {
         updatedUserInfo = jwt.sign(updatedUserInfo, process.env.JWT);
 
@@ -100,5 +99,18 @@ module.exports = {
     } catch (error) {
       res.json({ result: false});
     }
-  }
+  },
+  getAccount: async (req, res) => {
+    // redux thunk에서 사용
+    try {
+      const userInfo = jwt.verify(req.body.userToken, process.env.JWT);
+      const updatedUserInfo = await authModel.getAccount(userInfo.user_id);
+      console.log(`${updatedUserInfo.name}님께서 접속하셨습니다 안녕~!`);
+      const updatedJwt = jwt.sign(updatedUserInfo, process.env.JWT);
+      return res.json({account: updatedUserInfo, jwt: updatedJwt});
+    } catch (error) {
+      console.log('getAccount error...', error);
+      return res.json({account: {}, jwt: ''});
+    }
+  },
 }

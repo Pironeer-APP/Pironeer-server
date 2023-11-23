@@ -8,5 +8,6 @@ router.post('/addUser', authController.addUser);
 router.post('/compareInfo/:type', authController.compareInfo);
 router.post('/updateInfo/:type', authController.updateInfo);
 router.post('/unregister', authController.unregister);
+router.post('/getAccount', authController.getAccount);
 
 module.exports = router;
