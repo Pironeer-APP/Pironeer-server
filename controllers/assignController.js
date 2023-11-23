@@ -148,14 +148,14 @@ module.exports = {
             //     case 0:
             //         if (updateGrade === 1 || updateGrade === 2)
             //             await userModel.updateDeposit(userId, 10000);
-            //         else if (updateGrade === 3)
+            //         else if (updateGrade === 3 || updateGrade === 4)
             //             await userModel.updateDeposit(userId, 20000);
             //         break;
             //     case 1:
             //     case 2:
             //         if (updateGrade === 0)
             //             await userModel.updateDeposit(userId, -10000);
-            //         else if (updateGrade === 3)
+            //         else if (updateGrade === 3 || updateGrade === 4)
             //             await userModel.updateDeposit(userId, 10000);
             //         break;
             //     case 3:
@@ -164,26 +164,27 @@ module.exports = {
             //         else if (updateGrade === 1 || updateGrade === 2)
             //             await userModel.updateDeposit(userId, -10000);
             //         break;
+            //     case 4:
+            //         if (updateGrade === 0)
+            //             await userModel.updateDeposit(userId, -20000);
+            //         else if (updateGrade === 1 || updateGrade === 2)
+            //             await userModel.updateDeposit(userId, -10000);
             // }
 
             // console.log('curGrade:', curGrade, 'updateGrade:', updateGrade);
 
-            // 채점 전 상태 추가! 따로 분리
-            if (curGrade === 4 && updateGrade === 0)
+            // 2. 수행할 작업의 종류에 따라
+            if ((curGrade === 3 && updateGrade === 0) || (curGrade === 4 && updateGrade === 0))
                 await userModel.updateDeposit(userId, -20000);
-            else if (curGrade === 4 && (updateGrade === 1 || updateGrade === 2))
+            else if (((curGrade === 1 || curGrade === 2) && updateGrade === 0)
+             || (curGrade === 3 && (updateGrade === 1 || updateGrade === 2))
+             || (curGrade === 4 && (updateGrade === 1 || updateGrade === 2)))
                 await userModel.updateDeposit(userId, -10000);
             else if (curGrade === 0 && updateGrade === 4)
                 await userModel.updateDeposit(userId, 20000);
-            else if ((curGrade === 1 || curGrade === 2) && updateGrade === 4)
-                await userModel.updateDeposit(userId, 10000);
-
-            // 2. 수행할 작업의 종류에 따라
-            if (curGrade === 3 && updateGrade === 0)
-                await userModel.updateDeposit(userId, -20000);
-            else if (((curGrade === 1 || curGrade === 2) && updateGrade === 0) || (curGrade === 3 && (updateGrade === 1 || updateGrade === 2)))
-                await userModel.updateDeposit(userId, -10000);
-            else if (((curGrade === 1 || curGrade === 2) && updateGrade === 3) || (curGrade === 0 && (updateGrade === 1 || updateGrade === 2))) {
+            else if (((curGrade === 1 || curGrade === 2) && updateGrade === 3)
+             || (curGrade === 0 && (updateGrade === 1 || updateGrade === 2))
+             || ((curGrade === 1 || curGrade === 2) && updateGrade === 4)) {
                 await userModel.updateDeposit(userId, 10000);
 
                 // 이미 쿠폰을 사용하여 보증금이 13만원이거나 14만원일 경우
