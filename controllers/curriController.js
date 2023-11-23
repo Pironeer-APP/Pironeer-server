@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const authModel = require('../models/authModel.js');
 
 module.exports = {
   getUrl: async (req, res) => {
