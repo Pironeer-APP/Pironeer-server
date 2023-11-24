@@ -134,5 +134,15 @@ module.exports = {
     const result = await db.query(query, [adder, user_id]);
 
     return result[0];
+  },
+  getOneUserDeposit: async (user_id) => {
+    const query = `
+    SELECT deposit
+    FROM User
+    WHERE user_id=?;
+    `
+    const OneUserDeposit = await db.query(query, [user_id]);
+
+    return OneUserDeposit[0][0];
   }
 }

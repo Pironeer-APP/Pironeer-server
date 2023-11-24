@@ -148,28 +148,28 @@ module.exports = {
             // switch (curGrade) {
             //     case 0:
             //         if (updateGrade === 1 || updateGrade === 2)
-            //             await userModel.updateDeposit(userId, 10000);
+            //             await depositModel.updateDeposit(userId, 10000);
             //         else if (updateGrade === 3 || updateGrade === 4)
-            //             await userModel.updateDeposit(userId, 20000);
+            //             await depositModel.updateDeposit(userId, 20000);
             //         break;
             //     case 1:
             //     case 2:
             //         if (updateGrade === 0)
-            //             await userModel.updateDeposit(userId, -10000);
+            //             await depositModel.updateDeposit(userId, -10000);
             //         else if (updateGrade === 3 || updateGrade === 4)
-            //             await userModel.updateDeposit(userId, 10000);
+            //             await depositModel.updateDeposit(userId, 10000);
             //         break;
             //     case 3:
             //         if (updateGrade === 0)
-            //             await userModel.updateDeposit(userId, -20000);
+            //             await depositModel.updateDeposit(userId, -20000);
             //         else if (updateGrade === 1 || updateGrade === 2)
-            //             await userModel.updateDeposit(userId, -10000);
+            //             await depositModel.updateDeposit(userId, -10000);
             //         break;
             //     case 4:
             //         if (updateGrade === 0)
-            //             await userModel.updateDeposit(userId, -20000);
+            //             await depositModel.updateDeposit(userId, -20000);
             //         else if (updateGrade === 1 || updateGrade === 2)
-            //             await userModel.updateDeposit(userId, -10000);
+            //             await depositModel.updateDeposit(userId, -10000);
             // }
 
             // console.log('curGrade:', curGrade, 'updateGrade:', updateGrade);
@@ -189,8 +189,7 @@ module.exports = {
                 newDeposit = await depositModel.updateDeposit(userId, 10000);
 
                 // 이미 쿠폰을 사용하여 보증금이 13만원이거나 14만원일 경우
-                const user = await authModel.getAccount(userId);
-                const newDeposit = user.deposit;
+                const newDeposit = await depositModel.getOneUserDeposit(userId);
                 console.log(newDeposit);
 
                 if (newDeposit === 130000) {
@@ -205,7 +204,7 @@ module.exports = {
             else if (curGrade === 0 && updateGrade === 3) {
                 await depositModel.updateDeposit(userId, 20000);
 
-                const newDeposit = await userModel.getOneUserDeposit(userId);
+                const newDeposit = await depositModel.getOneUserDeposit(userId);
                 console.log(newDeposit);
                 
                 if (newDeposit === 130000) {
