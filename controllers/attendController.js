@@ -143,7 +143,7 @@ module.exports = {
     // 3-1. 지각 -> 출석: +1만
     if(targetAttend.type === '지각' && attendType === '출석') {
       await depositModel.updateDeposit(user_id, 10000);
-    } else if(targetAttend === '결석') {
+    } else if(targetAttend.type === '결석') {
       // 3-3. 결석 -> 출석: +2만
       // 3-4. 결석 -> 지각: +1만
       if(attendType === '출석') {
