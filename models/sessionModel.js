@@ -21,7 +21,7 @@ module.exports = {
     SELECT *,
     ROW_NUMBER() OVER(ORDER BY date DESC) AS cnt
     FROM Session
-    WHERE level=20;`;
+    WHERE level=?;`;
     const sessions = await db.query(query, [level]);
     
     return sessions[0];
