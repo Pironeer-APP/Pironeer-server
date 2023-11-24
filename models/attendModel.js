@@ -136,7 +136,8 @@ module.exports = {
     (
       SELECT * FROM User WHERE level=? AND is_admin=0
     ) AS User
-    ON Attend.user_id=User.user_id;`;
+    ON Attend.user_id=User.user_id
+    ORDER BY User.name;`;
 
     const result = await db.query(qurey, [session_id, level]);
 
