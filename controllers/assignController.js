@@ -181,8 +181,6 @@ module.exports = {
              || (curGrade === 3 && (updateGrade === 1 || updateGrade === 2))
              || (curGrade === 4 && (updateGrade === 1 || updateGrade === 2)))
                 newDeposit = await depositModel.updateDeposit(userId, -10000);
-            else if (curGrade === 0 && updateGrade === 4)
-                newDeposit = await depositModel.updateDeposit(userId, 20000);
             else if (((curGrade === 1 || curGrade === 2) && updateGrade === 3)
              || (curGrade === 0 && (updateGrade === 1 || updateGrade === 2))
              || ((curGrade === 1 || curGrade === 2) && updateGrade === 4)) {
@@ -201,7 +199,7 @@ module.exports = {
                     await depositModel.updateDeposit(userId, -20000);
                 }
             }
-            else if (curGrade === 0 && updateGrade === 3) {
+            else if ((curGrade === 0 && updateGrade === 3) || (curGrade === 0 && updateGrade === 4)) {
                 await depositModel.updateDeposit(userId, 20000);
 
                 const newDeposit = await depositModel.getOneUserDeposit(userId);
