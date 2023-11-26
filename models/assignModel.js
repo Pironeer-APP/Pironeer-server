@@ -8,7 +8,8 @@ module.exports = {
          AssignSchedule.title,
          Assign.grade,
          AssignSchedule.created_at AS created_at,
-         AssignSchedule.due_date AS due_date
+         AssignSchedule.due_date AS due_date,
+         AssignSchedule.assignschedule_id
         FROM
          AssignSchedule
         LEFT JOIN
