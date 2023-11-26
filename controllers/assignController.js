@@ -142,8 +142,7 @@ module.exports = {
         if (userInfo.is_admin) {
             // 현재 user의 grade 불러오기
             const curGrade = await assignModel.getCurrentAssignGrade(assignScheduleId, userId);
-            const newDeposit = 0;
-
+            
             // 1. curGrade에 따라
             // switch (curGrade) {
             //     case 0:
@@ -173,21 +172,22 @@ module.exports = {
             // }
 
             // console.log('curGrade:', curGrade, 'updateGrade:', updateGrade);
-
+            
             // 2. 수행할 작업의 종류에 따라
             if ((curGrade === 3 && updateGrade === 0) || (curGrade === 4 && updateGrade === 0))
-                newDeposit = await depositModel.updateDeposit(userId, -20000);
+                await depositModel.updateDeposit(userId, -20000);
             else if (((curGrade === 1 || curGrade === 2) && updateGrade === 0)
              || (curGrade === 3 && (updateGrade === 1 || updateGrade === 2))
              || (curGrade === 4 && (updateGrade === 1 || updateGrade === 2)))
-                newDeposit = await depositModel.updateDeposit(userId, -10000);
+                await depositModel.updateDeposit(userId, -10000);
             else if (((curGrade === 1 || curGrade === 2) && updateGrade === 3)
              || (curGrade === 0 && (updateGrade === 1 || updateGrade === 2))
              || ((curGrade === 1 || curGrade === 2) && updateGrade === 4)) {
-                newDeposit = await depositModel.updateDeposit(userId, 10000);
+                await depositModel.updateDeposit(userId, 10000);
 
                 // 이미 쿠폰을 사용하여 보증금이 13만원이거나 14만원일 경우
-                const newDeposit = await depositModel.getOneUserDeposit(userId);
+                const user = await authModel.getAccount(userId);
+                const newDeposit = user.deposit;
                 console.log(newDeposit);
 
                 if (newDeposit === 130000) {
@@ -202,7 +202,8 @@ module.exports = {
             else if ((curGrade === 0 && updateGrade === 3) || (curGrade === 0 && updateGrade === 4)) {
                 await depositModel.updateDeposit(userId, 20000);
 
-                const newDeposit = await depositModel.getOneUserDeposit(userId);
+                const user = await authModel.getAccount(userId);
+                const newDeposit = user.deposit;
                 console.log(newDeposit);
                 
                 if (newDeposit === 130000) {
