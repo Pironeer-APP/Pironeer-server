@@ -134,5 +134,5 @@ module.exports = {
     const result = await db.query(query, [adder, user_id]);
 
     return result[0];
-  }
+  },
 }
