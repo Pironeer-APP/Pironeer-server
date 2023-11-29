@@ -8,7 +8,7 @@ module.exports = {
     try {
       const data = await authModel.login(loginData);
       console.log(data);
-      if(data) {
+      if (data) {
         const token = jwt.sign(data, process.env.JWT);
         res.json({ token: token });
       } else {
@@ -26,7 +26,7 @@ module.exports = {
       if (account) {
         await authModel.findAccount(phone, newPassword);
         const result = await mailer(account.email, account.name, phone, newPassword);
-        res.json({result: '비밀번호 변경 완료'});
+        res.json({ result: '비밀번호 변경 완료' });
       } else {
         res.json({ result: '계정 정보 없음' });
       }
@@ -40,7 +40,7 @@ module.exports = {
       const randPassword = Math.random().toString(36).substring(2, 11);
       const result = await authModel.addUser(body, randPassword);
 
-      if(result) {
+      if (result) {
         // 합격자 정보 이메일 전송
         const mailerResult = await mailer(body.email, body.name, body.phone, randPassword);
         res.json(mailerResult);
@@ -54,63 +54,46 @@ module.exports = {
   compareInfo: async (req, res) => {
     const type = req.params.type;
     const data = req.body.data;
-    try {
-      const userInfo = jwt.verify(req.body.user_token, process.env.JWT);
-      const result = await authModel.compareInfo(data, type, userInfo);
+    const userInfo = req.body.account;
+    const result = await authModel.compareInfo(data, type, userInfo);
 
-      res.json({ result: result });
-    } catch (error) {
-      res.json({ result: null });
-    }
+    res.json({ result: result });
   },
   updateInfo: async (req, res) => {
     const type = req.params.type;
     const body = req.body;
     const data = body.data;
+    const userInfo = req.body.account;
+    if (type === 'phone') {
+      await authModel.updatePhone(data, userInfo.user_id);
+    } else if (type === 'password') {
+      await authModel.updatePassword(data, userInfo.user_id);
+    } else if (type === 'email') {
+      await authModel.updateEmail(data, userInfo.user_id);
+    } else if (type === 'level' && userInfo.is_admin) { // 관리자만 기수 변경 가능
+      await authModel.updateLevel(data, userInfo.user_id);
+    }
+
+    let updatedUserInfo = await authModel.getAccount(userInfo.user_id);
     try {
-      const userInfo = jwt.verify(body.user_token, process.env.JWT);
-      if (type === 'phone') {
-        await authModel.updatePhone(data, userInfo.user_id);
-      } else if (type === 'password') {
-        await authModel.updatePassword(data, userInfo.user_id);
-      } else if (type === 'email') {
-        await authModel.updateEmail(data, userInfo.user_id);
-      } else if (type === 'level' && userInfo.is_admin) { // 관리자만 기수 변경 가능
-        await authModel.updateLevel(data, userInfo.user_id);
-      }
+      updatedUserInfo = jwt.sign(updatedUserInfo, process.env.JWT);
 
-      let updatedUserInfo = await authModel.getAccount(userInfo.user_id);
-      try {
-        updatedUserInfo = jwt.sign(updatedUserInfo, process.env.JWT);
-
-        res.json({ updatedUserInfo: updatedUserInfo });
-      } catch (error) {
-        res.json({ updatedUserInfo: null });
-      }
+      res.json({ updatedUserInfo: updatedUserInfo });
     } catch (error) {
       res.json({ updatedUserInfo: null });
     }
   },
   unregister: async (req, res) => {
-    try {
-      const userInfo = jwt.verify(req.body.token, process.env.JWT);
-      const result = await authModel.unregister(userInfo.user_id);
-      res.json({ result: result });
-    } catch (error) {
-      res.json({ result: false});
-    }
+    const userInfo = req.body.account;
+    const result = await authModel.unregister(userInfo.user_id);
+    res.json({ result: result });
   },
   getAccount: async (req, res) => {
     // redux thunk에서 사용
-    try {
-      const userInfo = jwt.verify(req.body.userToken, process.env.JWT);
-      const updatedUserInfo = await authModel.getAccount(userInfo.user_id);
-      console.log(`${updatedUserInfo.name}님께서 접속하셨습니다 안녕~!`);
-      const updatedJwt = jwt.sign(updatedUserInfo, process.env.JWT);
-      return res.json({account: updatedUserInfo, jwt: updatedJwt});
-    } catch (error) {
-      console.log('getAccount error...', error);
-      return res.json({account: {}, jwt: ''});
-    }
+    const userInfo = req.body.account;
+    const updatedUserInfo = await authModel.getAccount(userInfo.user_id);
+    console.log(`${updatedUserInfo.name}님께서 접속하셨습니다 안녕~!`);
+    const updatedJwt = jwt.sign(updatedUserInfo, process.env.JWT);
+    return res.json({ account: updatedUserInfo, jwt: updatedJwt });
   },
 }

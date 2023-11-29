@@ -3,71 +3,49 @@ const jwt = require('jsonwebtoken');
 
 module.exports = {
   getDepositHistory: async (req, res) => {
-    const userToken = req.body.userToken;
-    try {
-      const userInfo = jwt.verify(userToken, process.env.JWT);
-      const histories = await depositModel.getDepositHistory(userInfo);
-      console.log(histories)
-      res.json({histories: histories});
-    } catch(error) {
-      console.log(error);
-      res.json({histories: []});
-    }
+    const userInfo = req.body.account;
+    const histories = await depositModel.getDepositHistory(userInfo);
+    console.log(histories)
+    res.json({ histories: histories });
   },
   getDepositHistoryAdmin: async (req, res) => {
     const userInfo = req.body.userInfo;
     try {
       const histories = await depositModel.getDepositHistory(userInfo);
       console.log(histories)
-      res.json({histories: histories});
-    } catch(error) {
+      res.json({ histories: histories });
+    } catch (error) {
       console.log(error);
-      res.json({histories: []});
+      res.json({ histories: [] });
     }
   },
   getCoupons: async (req, res) => {
-    const userToken = req.body.userToken;
-    try {
-      const userInfo = jwt.verify(userToken, process.env.JWT);
-      const couponInfo = await depositModel.getCoupons(userInfo);
-      res.json({couponInfo: couponInfo});
-    } catch(error) {
-      res.json({couponInfo: []});
-    }
+    const userInfo = req.body.account;
+    const couponInfo = await depositModel.getCoupons(userInfo);
+    res.json({ couponInfo: couponInfo });
   },
   getCouponsAdmin: async (req, res) => {
     const userInfo = req.body.userInfo;
-    try {
-      const couponInfo = await depositModel.getCoupons(userInfo);
-      res.json({couponInfo: couponInfo});
-    } catch(error) {
-      res.json({couponInfo: []});
-    }
+    const couponInfo = await depositModel.getCoupons(userInfo);
+    res.json({ couponInfo: couponInfo });
   },
   addCouponToUser: async (req, res) => {
     const couponData = req.body;
     const result = await depositModel.addCouponToUser(couponData);
 
-    res.json({result: result});
+    res.json({ result: result });
   },
   deleteCoupon: async (req, res) => {
-    console.log(req.body);
-    const adminToken = req.body.adminToken;
-    try {
-      const adminInfo = jwt.verify(adminToken, process.env.JWT);
-      if(adminInfo.is_admin) { // 관리자만 삭제 가능
-        await depositModel.deleteCoupon(req.body.userInfo.user_id);
-        res.json({result: true});
-      } else {
-        res.json({result: false});
-      }
-    } catch(error) {
-      console.log(error);
-      res.json({result: false});
+    const adminInfo = req.body.account;
+    if (adminInfo.is_admin) { // 관리자만 삭제 가능
+      await depositModel.deleteCoupon(req.body.userInfo.user_id);
+      res.json({ result: true });
+    } else {
+      res.json({ result: false });
     }
   },
-  useCoupon: async (req,res) => {
-    const user_id  = req.body.userId;
+  useCoupon: async (req, res) => {
+    const user_id = req.body.userId;
     await depositModel.useCoupon(user_id);
     res.json({});
   }
