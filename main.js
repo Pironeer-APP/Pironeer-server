@@ -39,6 +39,25 @@ const sessionRouter = require('./routers/sessionRouter.js');
 const attendRouter = require('./routers/attendRouter.js');
 const fcmRouter = require('./routers/fcmRouter.js');
 const curriRouter = require('./routers/curriRouter.js');
+const verify = require('./reusable/verifyJwt.js');
+
+app.post('*', async (req, res, next) => {
+  console.log('여기요..', req.body);
+  
+  const execeptUrls = ['/api/auth/login', '/api/auth/findAccount'];
+  if(execeptUrls.includes(req.originalUrl)) {
+    next();
+    return;
+  }
+
+  const account = await verify.verifyJwt(req.body.userToken);
+  if(account) {
+    req.body.account = account;
+    next();
+  } else {
+    res.status(404).json({});
+  }
+})
 
 app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
