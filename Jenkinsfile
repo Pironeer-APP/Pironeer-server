@@ -16,6 +16,7 @@ node {
         CURRI_URL="${APP_CURRI_URL}"
     }
     stage('Build Image') {
+        sh 'pwd'
         app = docker.build('ywonchae1/pironeer-app-server')
     }
     stage('Push Image') {
