@@ -88,6 +88,7 @@ module.exports = {
     }
   },
   connectImage: async (req, res) => {
+    console.log('image..', req);
     const image_array = req.files;
     const post_id = req.body.post_id
 
