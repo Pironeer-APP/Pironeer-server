@@ -24,4 +24,7 @@ node {
             app.push("latest")
         }
     }
+    stage('Deploy') {
+        sh 'docker run -d -p 3000:3000 --name pironeer-app-server -v /var/jenkins_home/workspace/pirogramming-app-server/uploads:/usr/src/app/uploads ywonchae1/≤pironeer-app-server'
+    }
 }
