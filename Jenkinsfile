@@ -15,8 +15,12 @@ node {
         JWT="${JWT}"
         CURRI_URL="${APP_CURRI_URL}"
     }
+    stage('Clone') {
+        git branch: 'main',
+            url: 'https://github.com/Pironeer-APP/Pironeer-server.git'
+    }
     stage('Build Image') {
-        sh 'pwd'
+        sh 'ls'
         app = docker.build('ywonchae1/pironeer-app-server')
     }
     stage('Push Image') {
@@ -26,6 +30,6 @@ node {
         }
     }
     stage('Deploy') {
-        sh 'docker run -d -p 3000:3000 --name pironeer-app-server -v /var/jenkins_home/workspace/pirogramming-app-server/uploads:/usr/src/app/uploads ywonchae1/≤pironeer-app-server'
+        sh 'docker run -d -p 3000:3000 --name pironeer-app-server -v /var/jenkins_home/workspace/pirogramming-app-server_main/uploads:/usr/src/app/uploads ywonchae1/≤pironeer-app-server'
     }
 }
