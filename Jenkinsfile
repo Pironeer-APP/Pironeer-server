@@ -24,7 +24,7 @@ node {
         app = docker.build('ywonchae1/pironeer-app-server')
     }
     stage('Push Image') {
-        docker.withRegistry('https://registry.hub.docker.com', 'ywonchae1') {
+        docker.withRegistry('https://registry.hub.docker.com', 'docker-wonchae') {
             app.push("${env.BUILD_NUMBER}")
             app.push("latest")
         }
