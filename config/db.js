@@ -7,7 +7,8 @@ const db = mysql.createPool({
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
   database: process.env.DB_NAME,
-  timezone: '+00:00'
+  timezone: '+00:00',
+  charset : "utf8mb4"
 });
 
 module.exports = db;
