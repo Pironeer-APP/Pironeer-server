@@ -8,6 +8,15 @@ module.exports = {
 
     return codes[0][0];
   },
+  checkCode: async () => {
+    const query = `
+    SELECT COUNT(DISTINCT TempAttend.code) >= 3 AS result
+    FROM TempAttend;
+    `;
+    const result = await db.query(query);
+
+    return result[0][0];
+  },
   generateCode: async () => {
     let randomCode = '';
     for(let i = 0; i < 4; i++) randomCode += String(Math.floor(Math.random() * 10));
