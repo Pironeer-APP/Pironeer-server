@@ -45,7 +45,7 @@ module.exports = {
     return attends[0];
   },
   // 오늘 출결 종료
-  endAttend: async (session_id) => {
+  endAttend: async (session_id, thisLevel) => {
     /*
     1. session_id에 따라 오늘 세션 출결 없을 때만 진행
     2. TempAttend 테이블 조회, 출결 사항 집계
@@ -82,7 +82,7 @@ module.exports = {
     FROM TempAttend
     RIGHT JOIN User
     ON User.user_id=TempAttend.user_id
-    WHERE is_admin=0
+    WHERE is_admin=0 AND level=? 
     GROUP BY User.user_id;`;
 
     // 3번
@@ -92,7 +92,7 @@ module.exports = {
     }
     
     // Attend 테이블에 출결 데이터 확정
-    await db.query(insert_query, [session_id]);
+    await db.query(insert_query, [session_id, thisLevel]);
 
     // 5번
     const delete_query = 'DELETE FROM TempAttend';
