@@ -21,11 +21,11 @@ module.exports = {
     // 관리자만 생성할 수 있도록
     if (userInfo.is_admin) {
       // tempAttend에 서로 다른 출석 코드의 데이터가 3개 이상일 경우 새로운 코드 생성 불가능
-      const codesAlreadyExist = attendModel.checkCode();
+      const codesAlreadyExist = await attendModel.checkCode();
   
-      if (codesAlreadyExist) {
+      if (codesAlreadyExist.result) {
         console.log('[출석 코드 생성 3회 초과로 제한]');
-        return res.json({ code: false });
+        return res.json({ code: 'excess' });
       }
       const code = await attendModel.generateCode();
       console.log('[출석 코드 생성 완료]', code);
