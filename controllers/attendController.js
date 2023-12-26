@@ -20,12 +20,19 @@ module.exports = {
     const userInfo = req.body.account;
     // 관리자만 생성할 수 있도록
     if (userInfo.is_admin) {
+      // tempAttend에 서로 다른 출석 코드의 데이터가 3개 이상일 경우 새로운 코드 생성 불가능
+      const codesAlreadyExist = attendModel.checkCode();
+  
+      if (codesAlreadyExist) {
+        console.log('[출석 코드 생성 3회 초과로 제한]');
+        return res.json({ code: false });
+      }
       const code = await attendModel.generateCode();
       console.log('[출석 코드 생성 완료]', code);
-      res.json({ code: code });
+      return res.json({ code: code });
     } else {
       console.log('[출석 코드 생성 관리자 권한 필요]', error);
-      res.json({ code: false });
+      return res.json({ code: false });
     }
   },
   // 회원들이 출석 코드를 입력하고 출석 버튼을 눌렀을 때
