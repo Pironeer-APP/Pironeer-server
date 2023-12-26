@@ -70,7 +70,8 @@ module.exports = {
     const userInfo = req.body.account;
     console.log('사용자 정보', userInfo);
     if (userInfo.is_admin) {
-      const result = await attendModel.endAttend(session_id);
+      const thisLevel = userInfo.level;
+      const result = await attendModel.endAttend(session_id, thisLevel);
       // 보증금 반영
       const attends = await attendModel.getSessionAttend(session_id);
       for (let attend of attends) {
