@@ -28,6 +28,12 @@ module.exports = {
       res.json({ code: false });
     }
   },
+  getSessionAttend: async (req, res) => {
+    const userInfo = req.body.account;
+    const session_id = req.body.session_id;
+    const attends = await attendModel.getSessionAttend(session_id);
+    res.json({len: attends.length});
+  },
   // 회원들이 출석 코드를 입력하고 출석 버튼을 눌렀을 때
   addAttend: async (req, res) => {
     const userInfo = req.body.account;
@@ -39,6 +45,12 @@ module.exports = {
     console.log('입력한 코드:', input_code);
 
     try {
+      // TempAttend에 이미 정보가 있는지 확인
+      const myTempAttend = await attendModel.findTempAttend(user_id, input_code);
+      console.log(myTempAttend);
+      if (myTempAttend.length > 0) {
+        return res.json({result: 'exist'}); // 이미 정보가 존재함
+      }
       const code = await attendModel.getCode();
       // 생성된 코드가 있고, 코드와 입력된 코드가 같으면 출석
       if (code.code && code.code == input_code) {

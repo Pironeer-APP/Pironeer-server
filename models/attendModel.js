@@ -16,6 +16,14 @@ module.exports = {
 
     return randomCode;
   },
+  findTempAttend: async (user_id, input_code) => {
+    const query = `
+    SELECT * FROM TempAttend
+    WHERE user_id=? AND code=?;`;
+
+    const result = await db.query(query, [user_id, input_code]);
+    return result[0];
+  },
   addTempAttend: async (user_id, input_code) => {
     const query = `
     INSERT INTO TempAttend(user_id, code)
@@ -146,7 +154,7 @@ module.exports = {
   getSessionAndAttend: async (user_id, level) => {
     const query = `
     SELECT
-      ROW_NUMBER() OVER(ORDER BY Session.date DESC) AS cnt,
+      ROW_NUMBER() OVER(ORDER BY Session.date) AS cnt,
       Session.session_id, Session.level, Session.title, Session.location,
       Session.date, Session.is_face, Attend.attend_id, Attend.user_id, Attend.type,
       DATE_FORMAT(date, "%Y") AS year, DATE_FORMAT(date, "%m") AS month,
