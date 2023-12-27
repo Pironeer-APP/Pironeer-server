@@ -42,7 +42,7 @@ const curriRouter = require('./routers/curriRouter.js');
 const verify = require('./reusable/verifyJwt.js');
 
 app.post('*', async (req, res, next) => {
-  console.log('여기요..', req.body);
+  // console.log('여기요..', req.body);
   
   const execeptUrls = ['/api/auth/login', '/api/auth/findAccount', '/api/post/uploadimages'];
   if(execeptUrls.includes(req.originalUrl)) {

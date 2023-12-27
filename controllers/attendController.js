@@ -20,13 +20,26 @@ module.exports = {
     const userInfo = req.body.account;
     // 관리자만 생성할 수 있도록
     if (userInfo.is_admin) {
+      // tempAttend에 서로 다른 출석 코드의 데이터가 3개 이상일 경우 새로운 코드 생성 불가능
+      const codesAlreadyExist = await attendModel.checkCode();
+  
+      if (codesAlreadyExist.result) {
+        console.log('[출석 코드 생성 3회 초과로 제한]');
+        return res.json({ code: 'excess' });
+      }
       const code = await attendModel.generateCode();
       console.log('[출석 코드 생성 완료]', code);
-      res.json({ code: code });
+      return res.json({ code: code });
     } else {
       console.log('[출석 코드 생성 관리자 권한 필요]', error);
-      res.json({ code: false });
+      return res.json({ code: false });
     }
+  },
+  getSessionAttend: async (req, res) => {
+    const userInfo = req.body.account;
+    const session_id = req.body.session_id;
+    const attends = await attendModel.getSessionAttend(session_id);
+    res.json({len: attends.length});
   },
   // 회원들이 출석 코드를 입력하고 출석 버튼을 눌렀을 때
   addAttend: async (req, res) => {
@@ -39,6 +52,12 @@ module.exports = {
     console.log('입력한 코드:', input_code);
 
     try {
+      // TempAttend에 이미 정보가 있는지 확인
+      const myTempAttend = await attendModel.findTempAttend(user_id, input_code);
+      console.log(myTempAttend);
+      if (myTempAttend.length > 0) {
+        return res.json({result: 'exist'}); // 이미 정보가 존재함
+      }
       const code = await attendModel.getCode();
       // 생성된 코드가 있고, 코드와 입력된 코드가 같으면 출석
       if (code.code && code.code == input_code) {

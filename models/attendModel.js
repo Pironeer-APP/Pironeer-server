@@ -8,6 +8,15 @@ module.exports = {
 
     return codes[0][0];
   },
+  checkCode: async () => {
+    const query = `
+    SELECT COUNT(DISTINCT TempAttend.code) >= 3 AS result
+    FROM TempAttend;
+    `;
+    const result = await db.query(query);
+
+    return result[0][0];
+  },
   generateCode: async () => {
     let randomCode = '';
     for(let i = 0; i < 4; i++) randomCode += String(Math.floor(Math.random() * 10));
@@ -15,6 +24,14 @@ module.exports = {
     await db.query(query1, [randomCode]);
 
     return randomCode;
+  },
+  findTempAttend: async (user_id, input_code) => {
+    const query = `
+    SELECT * FROM TempAttend
+    WHERE user_id=? AND code=?;`;
+
+    const result = await db.query(query, [user_id, input_code]);
+    return result[0];
   },
   addTempAttend: async (user_id, input_code) => {
     const query = `
@@ -146,7 +163,7 @@ module.exports = {
   getSessionAndAttend: async (user_id, level) => {
     const query = `
     SELECT
-      ROW_NUMBER() OVER(ORDER BY Session.date DESC) AS cnt,
+      ROW_NUMBER() OVER(ORDER BY Session.date) AS cnt,
       Session.session_id, Session.level, Session.title, Session.location,
       Session.date, Session.is_face, Attend.attend_id, Attend.user_id, Attend.type,
       DATE_FORMAT(date, "%Y") AS year, DATE_FORMAT(date, "%m") AS month,
