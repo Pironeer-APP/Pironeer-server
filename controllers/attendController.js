@@ -59,11 +59,13 @@ module.exports = {
         return res.json({result: 'exist'}); // 이미 정보가 존재함
       }
       const code = await attendModel.getCode();
-      // 생성된 코드가 있고, 코드와 입력된 코드가 같으면 출석
-      if (code.code && code.code == input_code) {
-        const result = await attendModel.addTempAttend(user_id, input_code);
-        console.log('[출석 성공]', userInfo.name, '출석');
-        return res.json({ result: result });
+      if(code) {
+        // 생성된 코드가 있고, 코드와 입력된 코드가 같으면 출석
+        if (code.code == input_code) {
+          const result = await attendModel.addTempAttend(user_id, input_code);
+          console.log('[출석 성공]', userInfo.name, '출석');
+          return res.json({ result: result });
+        }
       }
       console.log('[출석 실패]');
       return res.json({ result: false });
